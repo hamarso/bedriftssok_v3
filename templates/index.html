@@ -466,6 +466,60 @@
             font-weight: 600;
             color: var(--primary);
         }
+        
+        .pagination {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        
+        .pagination-info {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .pagination-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+            min-width: 40px;
+        }
+        
+        .pagination-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .pagination-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .page-numbers {
+            display: flex;
+            gap: 0.25rem;
+            align-items: center;
+        }
 
         .empty-state {
             text-align: center;
@@ -683,6 +737,18 @@
                     </table>
                 </div>
             </div>
+            
+            <!-- Paginering -->
+            <div id="pagination" class="pagination" style="display: none;">
+                <div class="pagination-info">
+                    <span id="paginationText"></span>
+                </div>
+                <div class="pagination-controls">
+                    <button id="prevBtn" class="pagination-btn" onclick="previousPage()">← Forrige</button>
+                    <div class="page-numbers" id="pageNumbers"></div>
+                    <button id="nextBtn" class="pagination-btn" onclick="nextPage()">Neste →</button>
+                </div>
+            </div>
 
             <div id="emptyState" class="empty-state" style="display: none;">
                 <svg fill="currentColor" viewBox="0 0 20 20">
@@ -696,73 +762,19 @@
 
     <script>
         let currentResults = [];
+        let currentPage = 0;
+        const resultsPerPage = 100; // Antall resultater per side
 
         // Enkel søkefunksjon
         document.getElementById('searchForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             console.log('🔍 Søk startet!');
             
-            const searchBtn = document.getElementById('searchBtn');
-            const loading = document.getElementById('loading');
-            const resultsCard = document.getElementById('resultsCard');
-            const error = document.getElementById('error');
+            // Reset til første side ved nytt søk
+            currentPage = 0;
             
-            // Vis loading
-            searchBtn.disabled = true;
-            searchBtn.textContent = '🔍 Søker...';
-            loading.style.display = 'block';
-            error.style.display = 'none';
-            resultsCard.style.display = 'block';
-            
-            try {
-                const bransjekode = document.getElementById('bransjekode').value;
-                const min_ansatte = parseInt(document.getElementById('min_ansatte').value) || 0;
-                const bedriftsnavn = document.getElementById('bedriftsnavn').value;
-                const poststed = document.getElementById('poststed').value;
-                const organisasjonsform = document.getElementById('organisasjonsform').value;
-                const registreringsdato = document.getElementById('registreringsdato').value;
-                
-                console.log('📤 Sender søk:', { bransjekode, min_ansatte, bedriftsnavn, poststed, organisasjonsform, registreringsdato });
-                
-                const response = await fetch('/api/sok', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        bransjekode: bransjekode,
-                        min_ansatte: min_ansatte,
-                        bedriftsnavn: bedriftsnavn,
-                        poststed: poststed,
-                        organisasjonsform: organisasjonsform,
-                        registreringsdato: registreringsdato,
-                        page: 0
-                    })
-                });
-                
-                console.log('📡 Response status:', response.status);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('📊 Response data:', data);
-                    
-                    if (data.success) {
-                        currentResults = data.selskaper;
-                        displayResults(data.selskaper, data.antall);
-                    } else {
-                        showError(data.error || 'Søket feilet');
-                    }
-                } else {
-                    const errorText = await response.text();
-                    showError(`HTTP ${response.status}: ${errorText}`);
-                }
-                
-            } catch (err) {
-                console.error('💥 Feil:', err);
-                showError('Kunne ikke koble til serveren: ' + err.message);
-            } finally {
-                searchBtn.disabled = false;
-                searchBtn.textContent = '🔍 Start søk';
-                loading.style.display = 'none';
-            }
+            // Kall performSearch funksjonen
+            await performSearch();
         });
 
         function displayResults(selskaper, antall) {
@@ -774,23 +786,40 @@
             const exportBtn = document.getElementById('exportBtn');
             const statsGrid = document.getElementById('statsGrid');
             const emptyState = document.getElementById('emptyState');
+            const pagination = document.getElementById('pagination');
+            const paginationText = document.getElementById('paginationText');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const pageNumbers = document.getElementById('pageNumbers');
             
-            resultsCount.textContent = `${antall} bedrifter funnet`;
+            // Vis antall viste resultater og total antall
+            const visteResultater = selskaper.length;
+            if (visteResultater === antall) {
+                resultsCount.textContent = `${antall} bedrifter funnet`;
+            } else {
+                resultsCount.textContent = `Viser ${visteResultater} av ${antall} bedrifter (side ${Math.floor(currentPage * resultsPerPage / resultsPerPage) + 1})`;
+            }
+            
             exportBtn.style.display = 'flex';
             
             if (antall === 0) {
                 emptyState.style.display = 'block';
                 resultsTable.style.display = 'none';
                 statsGrid.style.display = 'none';
+                pagination.style.display = 'none';
                 return;
             }
             
             emptyState.style.display = 'none';
             resultsTable.style.display = 'block';
             statsGrid.style.display = 'block';
+            pagination.style.display = 'block';
             
             // Vis statistikk
             displayStats(selskaper);
+            
+            // Oppdater paginering
+            updatePagination();
             
             resultsBody.innerHTML = '';
             
@@ -1161,6 +1190,206 @@
             } finally {
                 exportBtn.disabled = false;
                 exportBtn.innerHTML = '📊 Eksporter til Excel';
+            }
+        }
+
+        // Paginering
+        function previousPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                performSearch();
+            }
+        }
+
+        function nextPage() {
+            const totalResults = currentResults.length;
+            const totalPages = Math.ceil(totalResults / resultsPerPage);
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+                performSearch();
+            }
+        }
+
+        async function fetchAllResults(bransjekode, min_ansatte, bedriftsnavn, poststed, organisasjonsform, registreringsdato) {
+            try {
+                const response = await fetch('/api/sok', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        bransjekode: bransjekode,
+                        min_ansatte: min_ansatte,
+                        bedriftsnavn: bedriftsnavn,
+                        poststed: poststed,
+                        organisasjonsform: organisasjonsform,
+                        registreringsdato: registreringsdato,
+                        export_all: true
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        currentResults = data.selskaper;
+                        displayResults(data.selskaper, data.antall);
+                    }
+                }
+            } catch (err) {
+                console.error('💥 Feil ved henting av alle resultater:', err);
+            }
+        }
+
+        async function performSearch() {
+            const searchBtn = document.getElementById('searchBtn');
+            const loading = document.getElementById('loading');
+            const resultsCard = document.getElementById('resultsCard');
+            const error = document.getElementById('error');
+            
+            // Vis loading
+            searchBtn.disabled = true;
+            searchBtn.textContent = '🔍 Søker...';
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            resultsCard.style.display = 'block';
+            
+            try {
+                const bransjekode = document.getElementById('bransjekode').value;
+                const min_ansatte = parseInt(document.getElementById('min_ansatte').value) || 0;
+                const bedriftsnavn = document.getElementById('bedriftsnavn').value;
+                const poststed = document.getElementById('poststed').value;
+                const organisasjonsform = document.getElementById('organisasjonsform').value;
+                const registreringsdato = document.getElementById('registreringsdato').value;
+                
+                console.log('📤 Sender søk:', { bransjekode, min_ansatte, bedriftsnavn, poststed, organisasjonsform, registreringsdato });
+                
+                const response = await fetch('/api/sok', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        bransjekode: bransjekode,
+                        min_ansatte: min_ansatte,
+                        bedriftsnavn: bedriftsnavn,
+                        poststed: poststed,
+                        organisasjonsform: organisasjonsform,
+                        registreringsdato: registreringsdato,
+                        page: currentPage
+                    })
+                });
+                
+                console.log('📡 Response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('📊 Response data:', data);
+                    
+                    if (data.success) {
+                        // Lagre alle resultater for paginering
+                        if (data.page === 0) {
+                            // Første side - hent alle resultater for paginering
+                            fetchAllResults(bransjekode, min_ansatte, bedriftsnavn, poststed, organisasjonsform, registreringsdato);
+                        } else {
+                            // Andre sider - vis resultater
+                            currentResults = data.selskaper;
+                            displayResults(data.selskaper, data.antall);
+                        }
+                    } else {
+                        showError(data.error || 'Søket feilet');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    showError(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+            } catch (err) {
+                console.error('💥 Feil:', err);
+                showError('Kunne ikke koble til serveren: ' + err.message);
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = '🔍 Start søk';
+                loading.style.display = 'none';
+            }
+        }
+
+        function updatePagination() {
+            const totalResults = currentResults.length;
+            const totalPages = Math.ceil(totalResults / resultsPerPage);
+            
+            if (totalPages <= 1) {
+                document.getElementById('pagination').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('pagination').style.display = 'block';
+            
+            const startResult = (currentPage * resultsPerPage) + 1;
+            const endResult = Math.min((currentPage + 1) * resultsPerPage, totalResults);
+            document.getElementById('paginationText').textContent = `Viser ${startResult} - ${endResult} av ${totalResults} bedrifter`;
+
+            const pageNumbersDiv = document.getElementById('pageNumbers');
+            pageNumbersDiv.innerHTML = '';
+            
+            // Vis maksimalt 7 sidetall
+            const maxVisiblePages = 7;
+            let startPage = Math.max(0, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages);
+            
+            if (endPage - startPage < maxVisiblePages) {
+                startPage = Math.max(0, endPage - maxVisiblePages);
+            }
+            
+            // Forrige knapp
+            const prevBtn = document.getElementById('prevBtn');
+            prevBtn.disabled = currentPage === 0;
+            
+            // Neste knapp
+            const nextBtn = document.getElementById('nextBtn');
+            nextBtn.disabled = currentPage >= totalPages - 1;
+            
+            // Sidetall
+            if (startPage > 0) {
+                const firstBtn = document.createElement('button');
+                firstBtn.textContent = '1';
+                firstBtn.className = 'pagination-btn';
+                firstBtn.onclick = () => {
+                    currentPage = 0;
+                    performSearch();
+                };
+                pageNumbersDiv.appendChild(firstBtn);
+                
+                if (startPage > 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    ellipsis.style.margin = '0 0.5rem';
+                    pageNumbersDiv.appendChild(ellipsis);
+                }
+            }
+            
+            for (let i = startPage; i < endPage; i++) {
+                const button = document.createElement('button');
+                button.textContent = i + 1;
+                button.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                button.onclick = () => {
+                    currentPage = i;
+                    performSearch();
+                };
+                pageNumbersDiv.appendChild(button);
+            }
+            
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    ellipsis.style.margin = '0 0.5rem';
+                    pageNumbersDiv.appendChild(ellipsis);
+                }
+                
+                const lastBtn = document.createElement('button');
+                lastBtn.textContent = totalPages;
+                lastBtn.className = 'pagination-btn';
+                lastBtn.onclick = () => {
+                    currentPage = totalPages - 1;
+                    performSearch();
+                };
+                pageNumbersDiv.appendChild(lastBtn);
             }
         }
     </script>
