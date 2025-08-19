@@ -15,26 +15,24 @@
         }
 
         :root {
-            --primary: #059669;
+            --primary: #059665;
             --primary-dark: #047857;
             --secondary: #10b981;
-            --success: #059669;
-            --success-dark: #047857;
+            --success: #10b981;
             --warning: #f59e0b;
             --error: #ef4444;
             --text-primary: #1f2937;
             --text-secondary: #6b7280;
             --text-light: #9ca3af;
-            --bg-primary: #ffffff;
-            --bg-secondary: #f9fafb;
-            --bg-tertiary: #f3f4f6;
+            --bg-primary: #f8fafc;
+            --bg-secondary: #f1f5f9;
             --border: #e5e7eb;
             --border-light: #f3f4f6;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-            --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
         body {
@@ -535,6 +533,33 @@
         .load-all-btn:hover {
             background: var(--primary-dark);
         }
+
+        .dropdown-header {
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-light);
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .help-text {
+            margin-top: 0.5rem;
+            padding: 0.75rem;
+            background: rgba(5, 150, 105, 0.1);
+            border: 1px solid rgba(5, 150, 105, 0.2);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .help-text small {
+            color: inherit;
+        }
+
+        .help-text strong {
+            color: var(--primary);
+        }
     </style>
 </head>
 <body>
@@ -554,9 +579,12 @@
                             <button type="button" class="load-all-btn" onclick="loadAllNaceCodes()">Last alle koder</button>
                         </label>
                         <div class="dropdown-container">
-                            <input type="text" id="bransjekode" name="bransjekode" value="70.220" placeholder="Velg eller søk etter bransje" class="dropdown-input" readonly>
+                            <input type="text" id="bransjekode" name="bransjekode" value="70.220" placeholder="Velg fra liste, søk, eller skriv inn kode manuelt" class="dropdown-input">
                             <span class="dropdown-arrow">▼</span>
                             <div class="dropdown-menu" id="dropdownMenu">
+                                <div class="dropdown-header">
+                                    <span>Velg fra liste eller skriv inn kode</span>
+                                </div>
                                 <input type="text" class="dropdown-search" placeholder="Søk etter bransje..." id="dropdownSearch">
                                 <div class="dropdown-options" id="dropdownOptions">
                                     <div class="dropdown-option" data-value="70.220">
@@ -794,6 +822,11 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="help-text">
+                            <small>
+                                💡 <strong>Tips:</strong> Du kan velge fra listen, søke etter bransje, eller skrive inn hvilken som helst NACE-kode manuelt (f.eks. 69.200, 62.010, etc.)
+                            </small>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="min_ansatte">Minimum antall ansatte</label>
@@ -877,6 +910,27 @@
                 dropdownMenu.classList.toggle('show');
                 if (dropdownMenu.classList.contains('show')) {
                     dropdownSearch.focus();
+                }
+            });
+
+            // Allow manual input - remove readonly restriction
+            dropdownInput.addEventListener('input', function(e) {
+                const value = e.target.value;
+                console.log('📝 Manuell input:', value);
+                
+                // Validate NACE code format (optional)
+                if (value && value.length > 0) {
+                    // Basic validation: should be in format XX.XXX or similar
+                    const nacePattern = /^[A-Z]?\d{1,2}\.?\d{0,3}$/;
+                    if (nacePattern.test(value)) {
+                        dropdownInput.style.borderColor = 'var(--success)';
+                        console.log('✅ Gyldig NACE-kode format');
+                    } else {
+                        dropdownInput.style.borderColor = 'var(--warning)';
+                        console.log('⚠️ Uvanlig format, men kan fortsatt brukes');
+                    }
+                } else {
+                    dropdownInput.style.borderColor = 'var(--border)';
                 }
             });
 
@@ -999,7 +1053,7 @@
             dropdownOptions.innerHTML = '';
             dropdownSearch.value = ''; // Clear search input
             dropdownInput.value = ''; // Clear selected value
-            dropdownInput.placeholder = 'Velg eller søk etter bransje';
+            dropdownInput.placeholder = 'Velg fra liste, søk, eller skriv inn kode manuelt';
 
             // Show loading state
             dropdownMenu.classList.add('show');
