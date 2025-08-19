@@ -8,8 +8,8 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-def hente_selskaper_med_kriterier(bransjekode, min_ansatte):
-    """Henter selskaper basert på bransjekode og minimum antall ansatte"""
+def hente_selskaper_med_kriterier(bransjekode, min_ansatte, bedriftsnavn=None, poststed=None, organisasjonsform=None, registreringsdato=None):
+    """Henter selskaper basert på søkekriterier"""
     url = "https://data.brreg.no/enhetsregisteret/api/enheter"
     selskaper = []
     
@@ -22,6 +22,14 @@ def hente_selskaper_med_kriterier(bransjekode, min_ansatte):
     # Legg til antall ansatte parameter kun hvis det er større enn 0
     if min_ansatte > 0:
         params['fraAntallAnsatte'] = min_ansatte
+    
+    # Legg til organisasjonsform hvis spesifisert
+    if organisasjonsform:
+        params['organisasjonsform'] = organisasjonsform
+    
+    # Legg til registreringsdato hvis spesifisert
+    if registreringsdato:
+        params['fraRegistreringsdatoEnhetsregisteret'] = registreringsdato
     
     print(f"🔍 Søker med parametere: {params}")
     
@@ -66,8 +74,28 @@ def hente_selskaper_med_kriterier(bransjekode, min_ansatte):
     except Exception as e:
         print(f'💥 Feil under henting av data: {str(e)}')
     
-    print(f"🎯 Totalt antall bedrifter funnet: {len(selskaper)}")
+    # Filtrer resultater basert på bedriftsnavn og poststed (client-side filtering)
+    if bedriftsnavn or poststed:
+        selskaper = filtrer_selskaper(selskaper, bedriftsnavn, poststed)
+    
+    print(f"🎯 Totalt antall bedrifter funnet etter filtrering: {len(selskaper)}")
     return selskaper
+
+def filtrer_selskaper(selskaper, bedriftsnavn=None, poststed=None):
+    """Filtrerer selskaper basert på navn og poststed"""
+    filtrerte = selskaper
+    
+    if bedriftsnavn:
+        bedriftsnavn_lower = bedriftsnavn.lower()
+        filtrerte = [s for s in filtrerte if s.get('navn', '').lower().find(bedriftsnavn_lower) != -1]
+        print(f"🔍 Filtrert på bedriftsnavn '{bedriftsnavn}': {len(filtrerte)} bedrifter igjen")
+    
+    if poststed:
+        poststed_lower = poststed.lower()
+        filtrerte = [s for s in filtrerte if s.get('forretningsadresse', {}).get('poststed', '').lower().find(poststed_lower) != -1]
+        print(f"🔍 Filtrert på poststed '{poststed}': {len(filtrerte)} bedrifter igjen")
+    
+    return filtrerte
 
 @app.route('/')
 def index():
@@ -81,6 +109,10 @@ def sok_selskaper():
         data = request.get_json()
         bransjekode = data.get('bransjekode', '70.220')
         min_ansatte = int(data.get('min_ansatte', 0))
+        bedriftsnavn = data.get('bedriftsnavn', '')
+        poststed = data.get('poststed', '')
+        organisasjonsform = data.get('organisasjonsform', '')
+        registreringsdato = data.get('registreringsdato', '')
         page = int(data.get('page', 0))  # Legg til paginering
         page_size = 100  # 100 resultater per side
         export_all = data.get('export_all', False)  # Flag for å få alle resultater
@@ -88,10 +120,21 @@ def sok_selskaper():
         print(f"🚀 API søk mottatt:")
         print(f"   - Bransjekode: {bransjekode}")
         print(f"   - Min ansatte: {min_ansatte}")
+        print(f"   - Bedriftsnavn: {bedriftsnavn}")
+        print(f"   - Poststed: {poststed}")
+        print(f"   - Organisasjonsform: {organisasjonsform}")
+        print(f"   - Registreringsdato: {registreringsdato}")
         print(f"   - Side: {page}")
         print(f"   - Export all: {export_all}")
         
-        selskaper = hente_selskaper_med_kriterier(bransjekode, min_ansatte)
+        selskaper = hente_selskaper_med_kriterier(
+            bransjekode, 
+            min_ansatte, 
+            bedriftsnavn if bedriftsnavn else None,
+            poststed if poststed else None,
+            organisasjonsform if organisasjonsform else None,
+            registreringsdato if registreringsdato else None
+        )
         
         print(f"📊 Rå data mottatt: {len(selskaper)} bedrifter")
         
@@ -127,7 +170,8 @@ def sok_selskaper():
                 'antall_ansatte': antall_ansatte,
                 'nace_kode': selskap.get('naeringskode1', {}).get('kode', ''),
                 'adresse': selskap.get('forretningsadresse', {}).get('adresse', ''),
-                'telefon': telefon
+                'telefon': telefon,
+                'organisasjonsform': selskap.get('organisasjonsform', {}).get('kode', '')
             })
         
         print(f"✅ Formaterte data: {len(formaterte_selskaper)} bedrifter")
@@ -200,7 +244,7 @@ def eksporter_excel():
         sheet.title = "Selskaper"
         
         # Legg til overskrifter
-        headers = ['Organisasjonsnummer', 'Navn', 'Poststed', 'Antall Ansatte', 'NACE-kode', 'Adresse', 'Telefon']
+        headers = ['Organisasjonsnummer', 'Navn', 'Poststed', 'Antall Ansatte', 'NACE-kode', 'Adresse', 'Telefon', 'Organisasjonsform']
         sheet.append(headers)
         
         print(f"📊 Eksporterer {len(selskaper)} selskaper til Excel")
@@ -216,6 +260,7 @@ def eksporter_excel():
             nace_kode = str(selskap.get('nace_kode', '')) if selskap.get('nace_kode') is not None else ''
             adresse = str(selskap.get('adresse', '')) if selskap.get('adresse') is not None else ''
             telefon = str(selskap.get('telefon', '')) if selskap.get('telefon') is not None else ''
+            organisasjonsform = str(selskap.get('organisasjonsform', '')) if selskap.get('organisasjonsform') is not None else ''
             
             sheet.append([
                 organisasjonsnummer,
@@ -224,7 +269,8 @@ def eksporter_excel():
                 antall_ansatte,
                 nace_kode,
                 adresse,
-                telefon
+                telefon,
+                organisasjonsform
             ])
         
         print(f"✅ {len(selskaper)} bedrifter lagt til i Excel")

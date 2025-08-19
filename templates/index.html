@@ -564,6 +564,37 @@
                     </div>
                 </div>
                 
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bedriftsnavn">Bedriftsnavn (delvis match)</label>
+                        <input type="text" id="bedriftsnavn" name="bedriftsnavn" placeholder="f.eks. 'consulting', 'tech', 'as'">
+                    </div>
+                    <div class="form-group">
+                        <label for="poststed">Poststed</label>
+                        <input type="text" id="poststed" name="poststed" placeholder="f.eks. 'Oslo', 'Bergen', 'Trondheim'">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="organisasjonsform">Organisasjonsform</label>
+                        <select id="organisasjonsform" name="organisasjonsform">
+                            <option value="">Alle former</option>
+                            <option value="AS">AS (Aksjeselskap)</option>
+                            <option value="ENK">ENK (Enkeltpersonforetak)</option>
+                            <option value="ANS">ANS (Ansvarlig selskap)</option>
+                            <option value="KS">KS (Kommandittselskap)</option>
+                            <option value="NUF">NUF (Norskregistrert utenlandsk foretak)</option>
+                            <option value="ASA">ASA (Allmennaksjeselskap)</option>
+                            <option value="BA">BA (Selskap med delt ansvar)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="registreringsdato">Registrert etter</label>
+                        <input type="date" id="registreringsdato" name="registreringsdato" placeholder="ÅÅÅÅ-MM-DD">
+                    </div>
+                </div>
+                
                 <button type="submit" class="search-btn" id="searchBtn">
                     🔍 Start søk
                 </button>
@@ -623,6 +654,12 @@
                         <div class="chart-title">🗺️ Geografisk fordeling</div>
                         <div id="geoChart" class="bar-chart"></div>
                     </div>
+                    
+                    <!-- Organisasjonsform fordeling -->
+                    <div class="chart-item">
+                        <div class="chart-title">🏢 Organisasjonsform fordeling</div>
+                        <div id="organisasjonsformChart" class="bar-chart"></div>
+                    </div>
                 </div>
             </div>
             
@@ -638,6 +675,7 @@
                                 <th>NACE-kode</th>
                                 <th>Adresse</th>
                                 <th>Telefon</th>
+                                <th>Organisasjonsform</th>
                             </tr>
                         </thead>
                         <tbody id="resultsBody">
@@ -679,8 +717,12 @@
             try {
                 const bransjekode = document.getElementById('bransjekode').value;
                 const min_ansatte = parseInt(document.getElementById('min_ansatte').value) || 0;
+                const bedriftsnavn = document.getElementById('bedriftsnavn').value;
+                const poststed = document.getElementById('poststed').value;
+                const organisasjonsform = document.getElementById('organisasjonsform').value;
+                const registreringsdato = document.getElementById('registreringsdato').value;
                 
-                console.log('📤 Sender søk:', { bransjekode, min_ansatte });
+                console.log('📤 Sender søk:', { bransjekode, min_ansatte, bedriftsnavn, poststed, organisasjonsform, registreringsdato });
                 
                 const response = await fetch('/api/sok', {
                     method: 'POST',
@@ -688,6 +730,10 @@
                     body: JSON.stringify({
                         bransjekode: bransjekode,
                         min_ansatte: min_ansatte,
+                        bedriftsnavn: bedriftsnavn,
+                        poststed: poststed,
+                        organisasjonsform: organisasjonsform,
+                        registreringsdato: registreringsdato,
                         page: 0
                     })
                 });
@@ -760,6 +806,7 @@
                     <td><code>${selskap.nace_kode || '-'}</code></td>
                     <td>${selskap.adresse || '-'}</td>
                     <td>${selskap.telefon || '-'}</td>
+                    <td><code>${selskap.organisasjonsform || '-'}</code></td>
                 `;
                 resultsBody.appendChild(row);
             });
@@ -824,6 +871,9 @@
             
             // Generer geografisk fordeling
             generateGeoChart(selskaper);
+            
+            // Generer organisasjonsform fordeling
+            generateOrganisasjonsformChart(selskaper);
         }
 
         function generatePoststedChart(selskaper) {
@@ -1006,6 +1056,39 @@
                 return `
                     <div class="bar-item">
                         <div class="bar-label">${region}</div>
+                        <div class="bar-container">
+                            <div class="bar-fill" style="width: ${barWidth}%"></div>
+                        </div>
+                        <div class="bar-value">${count} (${percentage}%)</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function generateOrganisasjonsformChart(selskaper) {
+            const chartContainer = document.getElementById('organisasjonsformChart');
+            
+            // Grupper på organisasjonsform
+            const organisasjonsformCount = {};
+            selskaper.forEach(s => {
+                const form = s.organisasjonsform || 'Ukjent';
+                organisasjonsformCount[form] = (organisasjonsformCount[form] || 0) + 1;
+            });
+            
+            // Sorter etter antall
+            const sortedForms = Object.entries(organisasjonsformCount)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 8); // Vis top 8
+            
+            const maxCount = Math.max(...sortedForms.map(([,count]) => count));
+            
+            chartContainer.innerHTML = sortedForms.map(([form, count]) => {
+                const percentage = ((count / selskaper.length) * 100).toFixed(1);
+                const barWidth = (count / maxCount) * 100;
+                
+                return `
+                    <div class="bar-item">
+                        <div class="bar-label">${form}</div>
                         <div class="bar-container">
                             <div class="bar-fill" style="width: ${barWidth}%"></div>
                         </div>

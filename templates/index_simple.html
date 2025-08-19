@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bedriftssøk - Enkel Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-group { margin: 10px 0; }
+        input, button { padding: 10px; margin: 5px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .loading { color: blue; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Bedriftssøk - Enkel Test</h1>
+    
+    <form id="searchForm">
+        <div class="form-group">
+            <label for="bransjekode">NACE-kode:</label>
+            <input type="text" id="bransjekode" value="70.220" placeholder="NACE-kode">
+        </div>
+        <div class="form-group">
+            <label for="min_ansatte">Min ansatte:</label>
+            <input type="number" id="min_ansatte" value="0" min="0">
+        </div>
+        <button type="submit">🔍 Start søk</button>
+    </form>
+    
+    <div id="resultsCard" style="display: none;">
+        <h2>Resultater</h2>
+        <div id="resultsCount"></div>
+        <div id="loading" style="display: none;" class="loading">Henter data...</div>
+        <div id="error" style="display: none;" class="error"></div>
+        <div id="resultsTable" style="display: none;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Org.nummer</th>
+                        <th>Navn</th>
+                        <th>Poststed</th>
+                        <th>Ansatte</th>
+                        <th>NACE-kode</th>
+                        <th>Adresse</th>
+                        <th>Telefon</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody"></tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        let currentResults = [];
+        let currentPage = 0;
+        
+        // Enkel søkefunksjon
+        document.getElementById('searchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('🔍 Søk startet!');
+            
+            const searchBtn = document.querySelector('button[type="submit"]');
+            const loading = document.getElementById('loading');
+            const resultsCard = document.getElementById('resultsCard');
+            const error = document.getElementById('error');
+            
+            // Vis loading
+            searchBtn.disabled = true;
+            searchBtn.textContent = '🔍 Søker...';
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            resultsCard.style.display = 'block';
+            
+            try {
+                const bransjekode = document.getElementById('bransjekode').value;
+                const min_ansatte = parseInt(document.getElementById('min_ansatte').value) || 0;
+                
+                console.log('📤 Sender søk:', { bransjekode, min_ansatte, page: currentPage });
+                
+                const response = await fetch('/api/sok', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        bransjekode: bransjekode,
+                        min_ansatte: min_ansatte,
+                        page: currentPage
+                    })
+                });
+                
+                console.log('📡 Response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('📊 Response data:', data);
+                    
+                    if (data.success) {
+                        currentResults = data.selskaper;
+                        displayResults(data.selskaper, data.antall, data);
+                    } else {
+                        showError(data.error || 'Søket feilet');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    showError(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+            } catch (err) {
+                console.error('💥 Feil:', err);
+                showError('Kunne ikke koble til serveren: ' + err.message);
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = '🔍 Start søk';
+                loading.style.display = 'none';
+            }
+        });
+        
+        function displayResults(selskaper, antall, paginationData) {
+            console.log('🎯 Viser resultater:', selskaper, antall);
+            
+            const resultsCount = document.getElementById('resultsCount');
+            const resultsTable = document.getElementById('resultsTable');
+            const resultsBody = document.getElementById('resultsBody');
+            
+            resultsCount.textContent = `${antall} bedrifter funnet`;
+            resultsTable.style.display = 'block';
+            
+            resultsBody.innerHTML = '';
+            
+            selskaper.forEach(selskap => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${selskap.organisasjonsnummer || '-'}</td>
+                    <td>${selskap.navn || '-'}</td>
+                    <td>${selskap.poststed || '-'}</td>
+                    <td>${selskap.antall_ansatte || '-'}</td>
+                    <td>${selskap.nace_kode || '-'}</td>
+                    <td>${selskap.adresse || '-'}</td>
+                    <td>${selskap.telefon || '-'}</td>
+                `;
+                resultsBody.appendChild(row);
+            });
+            
+            console.log('✅ Resultater vist');
+        }
+        
+        function showError(message) {
+            const error = document.getElementById('error');
+            error.textContent = message;
+            error.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
