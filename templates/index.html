@@ -703,16 +703,16 @@
                         <div id="topPoststedChart" class="pie-chart"></div>
                     </div>
                     
-                    <!-- Geografisk fordeling -->
-                    <div class="chart-item">
-                        <div class="chart-title">🗺️ Geografisk fordeling</div>
-                        <div id="geoChart" class="bar-chart"></div>
-                    </div>
-                    
                     <!-- Organisasjonsform fordeling -->
                     <div class="chart-item">
                         <div class="chart-title">🏢 Organisasjonsform fordeling</div>
                         <div id="organisasjonsformChart" class="bar-chart"></div>
+                    </div>
+                    
+                    <!-- Telefonnummer tilgjengelighet -->
+                    <div class="chart-item">
+                        <div class="chart-title">📞 Telefonnummer tilgjengelighet</div>
+                        <div id="telefonChart" class="bar-chart"></div>
                     </div>
                 </div>
             </div>
@@ -898,11 +898,11 @@
             // Generer top 10 poststeder
             generateTopPoststedChart(selskaper);
             
-            // Generer geografisk fordeling
-            generateGeoChart(selskaper);
-            
             // Generer organisasjonsform fordeling
             generateOrganisasjonsformChart(selskaper);
+
+            // Generer telefonnummer tilgjengelighet
+            generateTelefonChart(selskaper);
         }
 
         function generatePoststedChart(selskaper) {
@@ -1049,51 +1049,6 @@
             }).join('');
         }
 
-        function generateGeoChart(selskaper) {
-            const chartContainer = document.getElementById('geoChart');
-            
-            // Grupper på region (basert på postnummer)
-            const regionCount = {};
-            selskaper.forEach(s => {
-                const poststed = s.poststed || 'Ukjent';
-                let region = 'Ukjent';
-                
-                // Enkel region-kategorisering basert på poststed
-                if (poststed.includes('Oslo') || poststed.includes('Bærum') || poststed.includes('Asker')) {
-                    region = 'Oslo/Viken';
-                } else if (poststed.includes('Bergen') || poststed.includes('Stavanger') || poststed.includes('Trondheim')) {
-                    region = 'Storbyer';
-                } else if (poststed.includes('Kristiansand') || poststed.includes('Tromsø') || poststed.includes('Bodø')) {
-                    region = 'Mellomstore byer';
-                } else if (poststed !== 'Ukjent') {
-                    region = 'Andre byer';
-                }
-                
-                regionCount[region] = (regionCount[region] || 0) + 1;
-            });
-            
-            // Sorter etter antall
-            const sortedRegions = Object.entries(regionCount)
-                .sort(([,a], [,b]) => b - a);
-            
-            const maxCount = Math.max(...sortedRegions.map(([,count]) => count));
-            
-            chartContainer.innerHTML = sortedRegions.map(([region, count]) => {
-                const percentage = ((count / selskaper.length) * 100).toFixed(1);
-                const barWidth = (count / maxCount) * 100;
-                
-                return `
-                    <div class="bar-item">
-                        <div class="bar-label">${region}</div>
-                        <div class="bar-container">
-                            <div class="bar-fill" style="width: ${barWidth}%"></div>
-                        </div>
-                        <div class="bar-value">${count} (${percentage}%)</div>
-                    </div>
-                `;
-            }).join('');
-        }
-
         function generateOrganisasjonsformChart(selskaper) {
             const chartContainer = document.getElementById('organisasjonsformChart');
             
@@ -1126,6 +1081,44 @@
                 `;
             }).join('');
         }
+
+        function generateTelefonChart(selskaper) {
+            const chartContainer = document.getElementById('telefonChart');
+ 
+             // Grupper på telefonnummer tilgjengelighet
+             const telefonTilgjengelighet = {
+                 'Med telefonnummer': 0,
+                 'Uten telefonnummer': 0
+             };
+ 
+             selskaper.forEach(s => {
+                 const telefon = s.telefon;
+                 if (telefon && telefon !== '-' && telefon !== 'Ukjent' && telefon.trim() !== '') {
+                     telefonTilgjengelighet['Med telefonnummer']++;
+                 } else {
+                     telefonTilgjengelighet['Uten telefonnummer']++;
+                 }
+             });
+ 
+             const maxCount = Math.max(...Object.values(telefonTilgjengelighet));
+ 
+             chartContainer.innerHTML = Object.entries(telefonTilgjengelighet).map(([status, count]) => {
+                 if (count === 0) return '';
+ 
+                 const percentage = ((count / selskaper.length) * 100).toFixed(1);
+                 const barWidth = (count / maxCount) * 100;
+ 
+                 return `
+                     <div class="bar-item">
+                         <div class="bar-label">${status}</div>
+                         <div class="bar-container">
+                             <div class="bar-fill" style="width: ${barWidth}%"></div>
+                         </div>
+                         <div class="bar-value">${count} (${percentage}%)</div>
+                     </div>
+                 `;
+             }).join('');
+         }
 
         function showError(message) {
             const error = document.getElementById('error');
