@@ -1033,6 +1033,9 @@
                 dropdownInput.placeholder = 'Velg fra liste eller skriv inn kode manuelt';
                 dropdownMenu.style.display = 'block';
                 
+                // Gjenopprett dropdown-funksjonalitet ved å kalle initializeDropdown igjen
+                initializeDropdown();
+                
                 // Endre knappetekst tilbake
                 loadAllBtn.textContent = 'Annen NACE-kode';
                 loadAllBtn.disabled = false;
