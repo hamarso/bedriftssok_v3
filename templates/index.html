@@ -764,7 +764,7 @@
                     </div>
                     <div class="form-group">
                         <label for="min_ansatte">Minimum antall ansatte</label>
-                        <input type="number" id="min_ansatte" name="min_ansatte" value="100" min="1" placeholder="f.eks. 100">
+                        <input type="number" id="min_ansatte" name="min_ansatte" value="0" min="0" placeholder="f.eks. 0, 10, 100">
                     </div>
                 </div>
                 <button type="submit" class="search-btn" id="searchBtn">
@@ -969,7 +969,7 @@
             try {
                 const formData = {
                     bransjekode: document.getElementById('bransjekode').value,
-                    min_ansatte: parseInt(document.getElementById('min_ansatte').value)
+                    min_ansatte: Math.max(0, parseInt(document.getElementById('min_ansatte').value) || 0)
                 };
                 
                 const response = await fetch('/api/sok', {
