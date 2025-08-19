@@ -30,7 +30,7 @@
             --border-light: #f3f4f6;
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px 0 rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
@@ -77,7 +77,7 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 24px;
             padding: 2.5rem;
-            box-shadow: var(--shadow-2xl);
+            box-shadow: var(--shadow-xl);
             margin-bottom: 2rem;
             position: relative;
             overflow: hidden;
@@ -129,113 +129,6 @@
 
         .form-group input::placeholder {
             color: var(--text-light);
-        }
-
-        .dropdown-container {
-            position: relative;
-        }
-
-        .dropdown-input {
-            cursor: pointer;
-            background: var(--bg-primary);
-        }
-
-        .dropdown-input:focus {
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
-        }
-
-        .dropdown-arrow {
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
-            transition: transform 0.2s ease;
-            color: var(--text-light);
-        }
-
-        .dropdown-input:focus + .dropdown-arrow {
-            transform: translateY(-50%) rotate(180deg);
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: var(--bg-primary);
-            border: 2px solid var(--primary);
-            border-top: none;
-            border-radius: 0 0 12px 12px;
-            max-height: 300px;
-            overflow-y: auto;
-            z-index: 1000;
-            display: none;
-            box-shadow: var(--shadow-lg);
-        }
-
-        .dropdown-menu.show {
-            display: block;
-        }
-
-        .dropdown-search {
-            padding: 0.75rem 1rem;
-            border: none;
-            border-bottom: 1px solid var(--border-light);
-            width: 100%;
-            font-size: 0.875rem;
-            background: var(--bg-secondary);
-            border-radius: 0;
-        }
-
-        .dropdown-search:focus {
-            outline: none;
-            background: var(--bg-primary);
-        }
-
-        .dropdown-options {
-            max-height: 250px;
-            overflow-y: auto;
-        }
-
-        .dropdown-option {
-            padding: 0.75rem 1rem;
-            cursor: pointer;
-            border-bottom: 1px solid var(--border-light);
-            transition: background-color 0.2s ease;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .dropdown-option:hover {
-            background: var(--bg-secondary);
-        }
-
-        .dropdown-option.selected {
-            background: rgba(5, 150, 105, 0.1);
-            color: var(--primary);
-        }
-
-        .option-code {
-            font-weight: 600;
-            font-family: 'Monaco', 'Menlo', monospace;
-            color: var(--primary);
-        }
-
-        .option-description {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            text-align: right;
-            max-width: 200px;
-        }
-
-        .no-results {
-            padding: 1rem;
-            text-align: center;
-            color: var(--text-light);
-            font-style: italic;
         }
 
         .form-row {
@@ -296,7 +189,7 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 24px;
             padding: 2.5rem;
-            box-shadow: var(--shadow-2xl);
+            box-shadow: var(--shadow-xl);
             display: none;
             position: relative;
             overflow: hidden;
@@ -344,7 +237,7 @@
         }
 
         .export-btn:hover {
-            background: var(--success-dark);
+            background: var(--primary-dark);
             transform: translateY(-1px);
             box-shadow: var(--shadow-lg);
         }
@@ -369,7 +262,7 @@
         }
 
         th {
-            background: var(--bg-tertiary);
+            background: var(--bg-secondary);
             font-weight: 600;
             color: var(--text-primary);
             font-size: 0.75rem;
@@ -452,6 +345,128 @@
             letter-spacing: 0.05em;
         }
 
+        .analysis-section {
+            margin-bottom: 2rem;
+        }
+
+        .analysis-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chart-container {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-light);
+            margin-bottom: 1rem;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .chart-item {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .bar-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .bar-label {
+            min-width: 120px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .bar-container {
+            flex: 1;
+            height: 24px;
+            background: var(--border-light);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            transition: width 0.3s ease;
+        }
+
+        .bar-value {
+            min-width: 60px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: right;
+        }
+
+        .pie-chart {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .pie-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+        }
+
+        .pie-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .pie-label {
+            font-size: 0.875rem;
+            color: var(--text-primary);
+        }
+
+        .pie-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
         .empty-state {
             text-align: center;
             padding: 3rem 2rem;
@@ -491,6 +506,19 @@
             .stats-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-item {
+                padding: 1rem;
+            }
+            
+            .bar-label {
+                min-width: 80px;
+                font-size: 0.75rem;
+            }
         }
 
         /* Smooth animations */
@@ -511,143 +539,6 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-
-
-        .load-all-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-left: 1rem;
-        }
-
-        .load-all-btn:hover {
-            background: var(--primary-dark);
-        }
-
-        .back-to-dropdown-btn {
-            background: var(--secondary);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-left: 0.5rem;
-        }
-
-        .back-to-dropdown-btn:hover {
-            background: var(--primary);
-        }
-
-        .dropdown-header {
-            padding: 0.75rem 1rem;
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-light);
-            font-weight: 600;
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-        }
-
-        .help-text {
-            margin-top: 0.5rem;
-            padding: 0.75rem;
-            background: rgba(5, 150, 105, 0.1);
-            border: 1px solid rgba(5, 150, 105, 0.2);
-            border-radius: 8px;
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-        }
-
-        .help-text small {
-            color: inherit;
-        }
-
-        .help-text strong {
-            color: var(--primary);
-        }
-        
-        /* Paginering */
-        .pagination {
-            margin-top: 2rem;
-            padding: 1.5rem;
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            border: 1px solid var(--border-light);
-        }
-        
-        .pagination-info {
-            text-align: center;
-            margin-bottom: 1rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-        
-        .pagination-controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .pagination-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: inherit;
-        }
-        
-        .pagination-btn:hover:not(:disabled) {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-        }
-        
-        .pagination-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .page-numbers {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-        
-        .page-number {
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-weight: 500;
-            min-width: 2.5rem;
-            text-align: center;
-        }
-        
-        .page-number:hover {
-            background: var(--bg-secondary);
-            border-color: var(--primary);
-        }
-        
-        .page-number.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
     </style>
 </head>
 <body>
@@ -661,266 +552,18 @@
             <form id="searchForm">
                 <div class="form-row">
                     <div class="form-group">
-                                        <label for="bransjekode">
-                    NACE-kode (bransje)
-                    <button type="button" class="load-all-btn" onclick="loadAllNaceCodes()">Annen NACE-kode</button>
-                    <button type="button" class="back-to-dropdown-btn" onclick="backToDropdown()" style="display: none;">Tilbake til dropdown</button>
-                </label>
-                        <div class="dropdown-container">
-                            <input type="text" id="bransjekode" name="bransjekode" value="70.220" placeholder="Velg fra liste eller skriv inn kode manuelt" class="dropdown-input">
-                            <span class="dropdown-arrow">▼</span>
-                            <div class="dropdown-menu" id="dropdownMenu">
-                                <div class="dropdown-header">
-                                    <span>Velg fra liste eller skriv inn kode</span>
-                                </div>
-                                <input type="text" class="dropdown-search" placeholder="Søk etter bransje..." id="dropdownSearch">
-                                <div class="dropdown-options" id="dropdownOptions">
-                                    <div class="dropdown-option" data-value="70.220">
-                                        <span class="option-code">70.220</span>
-                                        <span class="option-description">Konsulentvirksomhet innen forretningsadministrasjon</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="69.201">
-                                        <span class="option-code">69.201</span>
-                                        <span class="option-description">Regnskapsførere (4,461 bedrifter)</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="69.202">
-                                        <span class="option-code">69.202</span>
-                                        <span class="option-description">Revisjon (800 bedrifter)</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="69.203">
-                                        <span class="option-code">69.203</span>
-                                        <span class="option-description">Rådgivning innen regnskap (64 bedrifter)</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="69.100">
-                                        <span class="option-code">69.100</span>
-                                        <span class="option-description">Advokatvirksomhet og rettshjelp (2,873 bedrifter)</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="70.100">
-                                        <span class="option-code">70.100</span>
-                                        <span class="option-description">Hovedkontor (25,710 bedrifter)</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="70.210">
-                                        <span class="option-code">70.210</span>
-                                        <span class="option-description">Konsulentvirksomhet innen offentlig administrasjon (1,879 bedrifter)</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="62.010">
-                                        <span class="option-code">62.010</span>
-                                        <span class="option-description">Programvareutvikling</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="62.020">
-                                        <span class="option-code">62.020</span>
-                                        <span class="option-description">Rådgivning innen informasjonsteknologi</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="62.030">
-                                        <span class="option-code">62.030</span>
-                                        <span class="option-description">Databehandling og hosting</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="62.090">
-                                        <span class="option-code">62.090</span>
-                                        <span class="option-description">Annen IT-tjenesteyting</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="43.210">
-                                        <span class="option-code">43.210</span>
-                                        <span class="option-description">Elektrisk installasjon</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="43.220">
-                                        <span class="option-code">43.220</span>
-                                        <span class="option-description">VVS-installasjon</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="43.290">
-                                        <span class="option-code">43.290</span>
-                                        <span class="option-description">Annen bygge- og anleggsinstallasjon</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="41.200">
-                                        <span class="option-code">41.200</span>
-                                        <span class="option-description">Bygging av boliger</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="42.210">
-                                        <span class="option-code">42.210</span>
-                                        <span class="option-description">Bygging av veier og motorveier</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="42.220">
-                                        <span class="option-code">42.220</span>
-                                        <span class="option-description">Bygging av jernbaner og undergrunnsbaner</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="42.990">
-                                        <span class="option-code">42.990</span>
-                                        <span class="option-description">Bygging av andre anlegg</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.110">
-                                        <span class="option-code">47.110</span>
-                                        <span class="option-description">Butikk med dagligvarer</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.190">
-                                        <span class="option-code">47.190</span>
-                                        <span class="option-description">Butikk med andre dagligvarer</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.210">
-                                        <span class="option-code">47.210</span>
-                                        <span class="option-description">Butikk med tekstil, klær og sko</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.310">
-                                        <span class="option-code">47.310</span>
-                                        <span class="option-description">Butikk med brensel</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.410">
-                                        <span class="option-code">47.410</span>
-                                        <span class="option-description">Butikk med datamaskiner og programvare</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.420">
-                                        <span class="option-code">47.420</span>
-                                        <span class="option-description">Butikk med telekommunikasjonsutstyr</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.510">
-                                        <span class="option-code">47.510</span>
-                                        <span class="option-description">Butikk med møbler, belysning og husholdningsartikler</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.520">
-                                        <span class="option-code">47.520</span>
-                                        <span class="option-description">Butikk med glass, maling og byggematerialer</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.530">
-                                        <span class="option-code">47.530</span>
-                                        <span class="option-description">Butikk med tapeter, gulvbelegg og tekstil</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.540">
-                                        <span class="option-code">47.540</span>
-                                        <span class="option-description">Butikk med elektriske husholdningsartikler</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.550">
-                                        <span class="option-code">47.550</span>
-                                        <span class="option-description">Butikk med musikk og video</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.560">
-                                        <span class="option-code">47.560</span>
-                                        <span class="option-description">Butikk med sportsartikler</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.570">
-                                        <span class="option-code">47.570</span>
-                                        <span class="option-description">Butikk med leker og spill</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.580">
-                                        <span class="option-code">47.580</span>
-                                        <span class="option-description">Butikk med ur, smykker og sølvvarer</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.590">
-                                        <span class="option-code">47.590</span>
-                                        <span class="option-description">Butikk med andre nye varer</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.610">
-                                        <span class="option-code">47.610</span>
-                                        <span class="option-description">Butikk med brukte varer</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.620">
-                                        <span class="option-code">47.620</span>
-                                        <span class="option-description">Marked uten fast beliggenhet</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.630">
-                                        <span class="option-code">47.630</span>
-                                        <span class="option-description">Postordresalg</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.640">
-                                        <span class="option-code">47.640</span>
-                                        <span class="option-description">Internettbasert handel</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.650">
-                                        <span class="option-code">47.650</span>
-                                        <span class="option-description">Varehandel via automatiske salgsmaskiner</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.660">
-                                        <span class="option-code">47.660</span>
-                                        <span class="option-description">Varehandel via andre kanaler</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.710">
-                                        <span class="option-code">47.710</span>
-                                        <span class="option-description">Butikk med bøker</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.720">
-                                        <span class="option-code">47.720</span>
-                                        <span class="option-description">Butikk med aviser og papirvarer</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.730">
-                                        <span class="option-code">47.730</span>
-                                        <span class="option-description">Butikk med apotekvarer</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.740">
-                                        <span class="option-code">47.740</span>
-                                        <span class="option-description">Butikk med optiske artikler og fotoutstyr</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.750">
-                                        <span class="option-code">47.750</span>
-                                        <span class="option-description">Butikk med kosmetikk og toalettartikler</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.760">
-                                        <span class="option-code">47.760</span>
-                                        <span class="option-description">Butikk med blomster, planter, frø og gjødsel</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.770">
-                                        <span class="option-code">47.770</span>
-                                        <span class="option-description">Butikk med dyr og dyrefôr</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.780">
-                                        <span class="option-code">47.780</span>
-                                        <span class="option-description">Butikk med aviser og tobakksvarer</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.790">
-                                        <span class="option-code">47.790</span>
-                                        <span class="option-description">Butikk med andre spesialvarer</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.810">
-                                        <span class="option-code">47.810</span>
-                                        <span class="option-description">Butikk med mat og drikke</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.820">
-                                        <span class="option-code">47.820</span>
-                                        <span class="option-description">Butikk med tobakksvarer</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.830">
-                                        <span class="option-code">47.830</span>
-                                        <span class="option-description">Butikk med aviser og papirvarer</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.840">
-                                        <span class="option-code">47.840</span>
-                                        <span class="option-description">Butikk med andre dagligvarer</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.850">
-                                        <span class="option-code">47.850</span>
-                                        <span class="option-description">Butikk med andre varer</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.860">
-                                        <span class="option-code">47.860</span>
-                                        <span class="option-description">Butikk med andre tjenester</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.870">
-                                        <span class="option-code">47.870</span>
-                                        <span class="option-description">Butikk med andre produkter</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.880">
-                                        <span class="option-code">47.880</span>
-                                        <span class="option-description">Butikk med andre tjenester</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.890">
-                                        <span class="option-code">47.890</span>
-                                        <span class="option-description">Butikk med andre varer</span>
-                                    </div>
-                                    <div class="dropdown-option" data-value="47.900">
-                                        <span class="option-code">47.900</span>
-                                        <span class="option-description">Butikk med andre tjenester</span>
-                                    </div>
-                                </div>
-                            </div>
+                        <label for="bransjekode">NACE-kode (bransje)</label>
+                        <input type="text" id="bransjekode" name="bransjekode" value="70.220" placeholder="f.eks. 70.220, 69.201, 62.010">
+                        <div style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
+                            💡 <a href="https://www.ssb.no/klass/klassifikasjoner/6" target="_blank" style="color: var(--primary); text-decoration: underline;">Finn NACE-koder hos SSB</a> (åpner i ny fane)
                         </div>
-                                        <div class="help-text">
-                    <small>
-                        💡 <strong>Tips:</strong> Du kan velge fra listen eller skrive inn hvilken som helst NACE-kode manuelt (f.eks. 69.200, 62.010, etc.)
-                    </small>
-                </div>
                     </div>
                     <div class="form-group">
                         <label for="min_ansatte">Minimum antall ansatte</label>
                         <input type="number" id="min_ansatte" name="min_ansatte" value="0" min="0" placeholder="f.eks. 0, 10, 100">
                     </div>
                 </div>
+                
                 <button type="submit" class="search-btn" id="searchBtn">
                     🔍 Start søk
                 </button>
@@ -944,6 +587,45 @@
             
             <div id="statsGrid" class="stats-grid" style="display: none;"></div>
             
+            <!-- Analyse av data -->
+            <div id="analysisSection" class="analysis-section" style="display: none;">
+                <div class="analysis-title">
+                    📊 Detaljert analyse av resultatene
+                </div>
+                
+                <div class="chart-grid">
+                    <!-- Poststed fordeling -->
+                    <div class="chart-item">
+                        <div class="chart-title">📍 Fordeling på poststeder</div>
+                        <div id="poststedChart" class="bar-chart"></div>
+                    </div>
+                    
+                    <!-- NACE-kode fordeling -->
+                    <div class="chart-item">
+                        <div class="chart-title">🏢 Fordeling på NACE-koder</div>
+                        <div id="naceChart" class="bar-chart"></div>
+                    </div>
+                    
+                    <!-- Ansatte fordeling -->
+                    <div class="chart-item">
+                        <div class="chart-title">👥 Fordeling på antall ansatte</div>
+                        <div id="ansatteChart" class="bar-chart"></div>
+                    </div>
+                    
+                    <!-- Top 10 poststeder -->
+                    <div class="chart-item">
+                        <div class="chart-title">🏆 Top 10 poststeder</div>
+                        <div id="topPoststedChart" class="pie-chart"></div>
+                    </div>
+                    
+                    <!-- Geografisk fordeling -->
+                    <div class="chart-item">
+                        <div class="chart-title">🗺️ Geografisk fordeling</div>
+                        <div id="geoChart" class="bar-chart"></div>
+                    </div>
+                </div>
+            </div>
+            
             <div id="resultsTable" style="display: none;">
                 <div class="table-container">
                     <table>
@@ -962,22 +644,6 @@
                         </tbody>
                     </table>
                 </div>
-                
-                <!-- Paginering -->
-                <div id="pagination" class="pagination" style="display: none;">
-                    <div class="pagination-info">
-                        <span id="paginationText"></span>
-                    </div>
-                    <div class="pagination-controls">
-                        <button id="prevPageBtn" class="pagination-btn" onclick="previousPage()" disabled>
-                            ← Forrige
-                        </button>
-                        <span id="pageNumbers" class="page-numbers"></span>
-                        <button id="nextPageBtn" class="pagination-btn" onclick="nextPage()" disabled>
-                            Neste →
-                        </button>
-                    </div>
-                </div>
             </div>
 
             <div id="emptyState" class="empty-state" style="display: none;">
@@ -992,242 +658,76 @@
 
     <script>
         let currentResults = [];
-        let allOptions = [];
 
-        // Initialize dropdown functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeDropdown();
-        });
-
-        function initializeDropdown() {
-            const dropdownInput = document.getElementById('bransjekode');
-            const dropdownMenu = document.getElementById('dropdownMenu');
-            const dropdownSearch = document.getElementById('dropdownSearch');
-            const dropdownOptions = document.getElementById('dropdownOptions');
-            const options = dropdownOptions.querySelectorAll('.dropdown-option');
-
-            // Store all options for search functionality
-            allOptions = Array.from(options);
-
-            // Toggle dropdown on input click
-            dropdownInput.addEventListener('click', function(e) {
-                e.preventDefault();
-                dropdownMenu.classList.toggle('show');
-                if (dropdownMenu.classList.contains('show')) {
-                    dropdownSearch.focus();
-                }
-            });
-
-            // Allow manual input - remove readonly restriction
-            dropdownInput.addEventListener('input', function(e) {
-                const value = e.target.value;
-                console.log('📝 Manuell input:', value);
-                
-                // Validate NACE code format (optional)
-                if (value && value.length > 0) {
-                    // Basic validation: should be in format XX.XXX or similar
-                    const nacePattern = /^[A-Z]?\d{1,2}\.?\d{0,3}$/;
-                    if (nacePattern.test(value)) {
-                        dropdownInput.style.borderColor = 'var(--success)';
-                        console.log('✅ Gyldig NACE-kode format');
-                    } else {
-                        dropdownInput.style.borderColor = 'var(--warning)';
-                        console.log('⚠️ Uvanlig format, men kan fortsatt brukes');
-                    }
-                } else {
-                    dropdownInput.style.borderColor = 'var(--border)';
-                }
-            });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!dropdownInput.contains(e.target) && !dropdownMenu.contains(e.target)) {
-                    dropdownMenu.classList.remove('show');
-                }
-            });
-
-            // Handle search functionality
-            dropdownSearch.addEventListener('input', function(e) {
-                const searchTerm = e.target.value.toLowerCase();
-                console.log('Searching for:', searchTerm);
-                filterOptions(searchTerm);
-            });
-
-            // Handle option selection
-            options.forEach(option => {
-                option.addEventListener('click', function() {
-                    const value = this.getAttribute('data-value');
-                    const code = this.querySelector('.option-code').textContent;
-                    const description = this.querySelector('.option-description').textContent;
-                    
-                    console.log('🎯 Valgt NACE-kode:', value, code, description);
-                    
-                    dropdownInput.value = value;
-                    dropdownInput.setAttribute('data-description', description);
-                    dropdownMenu.classList.remove('show');
-                    
-                    // Update placeholder to show selected description
-                    dropdownInput.placeholder = `${code} - ${description}`;
-                    
-                    console.log('✅ Dropdown input verdi satt til:', dropdownInput.value);
-                });
-            });
-
-            // Handle keyboard navigation
-            dropdownSearch.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    dropdownMenu.classList.remove('show');
-                }
-            });
-        }
-
-        function filterOptions(searchTerm) {
-            const dropdownOptions = document.getElementById('dropdownOptions');
-            const options = dropdownOptions.querySelectorAll('.dropdown-option');
-            
-            if (!searchTerm || searchTerm.trim() === '') {
-                // Show all options if search is empty
-                options.forEach(option => {
-                    option.style.display = 'flex';
-                });
-                return;
-            }
-            
-            const searchLower = searchTerm.toLowerCase().trim();
-            let hasVisibleOptions = false;
-            
-            options.forEach(option => {
-                const code = option.querySelector('.option-code').textContent;
-                const description = option.querySelector('.option-description').textContent;
-                
-                // Search in both code and description
-                const codeMatch = code.toLowerCase().includes(searchLower);
-                const descriptionMatch = description.toLowerCase().includes(searchLower);
-                
-                if (codeMatch || descriptionMatch) {
-                    option.style.display = 'flex';
-                    hasVisibleOptions = true;
-                } else {
-                    option.style.display = 'none';
-                }
-            });
-
-            // Show no results message if no options match
-            let noResults = dropdownOptions.querySelector('.no-results');
-            if (!hasVisibleOptions) {
-                if (!noResults) {
-                    noResults = document.createElement('div');
-                    noResults.className = 'no-results';
-                    noResults.textContent = `Ingen resultater funnet for "${searchTerm}"`;
-                    dropdownOptions.appendChild(noResults);
-                }
-            } else if (noResults) {
-                noResults.remove();
-            }
-        }
-
-
-
-        // Function to enable manual input mode
-        function loadAllNaceCodes() {
-            const dropdownInput = document.getElementById('bransjekode');
-            const dropdownMenu = document.getElementById('dropdownMenu');
-            const loadAllBtn = document.querySelector('.load-all-btn');
-            const backToDropdownBtn = document.querySelector('.back-to-dropdown-btn');
-            
-            // Aktiver manuell input
-            console.log('🔄 Aktiverer manuell NACE-kode input...');
-            
-            // Fjern readonly og aktiver manuell input
-            dropdownInput.removeAttribute('readonly');
-            dropdownInput.placeholder = 'Skriv inn hvilken som helst NACE-kode (f.eks. 69.200, 62.010)';
-            
-            // Skjul dropdown-menyen
-            dropdownMenu.style.display = 'none';
-            
-            // Endre knappetekst
-            loadAllBtn.textContent = 'Manuell input aktivert';
-            loadAllBtn.disabled = true;
-            loadAllBtn.style.opacity = '0.6';
-            
-            // Vis tilbake-knapp
-            backToDropdownBtn.style.display = 'inline-block';
-            
-            console.log('✅ Manuell NACE-kode input aktivert');
-        }
-
-        // Function to go back to dropdown mode
-        function backToDropdown() {
-            const dropdownInput = document.getElementById('bransjekode');
-            const dropdownMenu = document.getElementById('dropdownMenu');
-            const loadAllBtn = document.querySelector('.load-all-btn');
-            const backToDropdownBtn = document.querySelector('.back-to-dropdown-btn');
-            
-            console.log('🔄 Går tilbake til dropdown-modus...');
-            
-            // Gjenopprett dropdown-funksjonalitet
-            dropdownInput.placeholder = 'Velg fra liste eller skriv inn kode manuelt';
-            dropdownMenu.style.display = 'block';
-            
-            // Endre knappetekst tilbake
-            loadAllBtn.textContent = 'Annen NACE-kode';
-            loadAllBtn.disabled = false;
-            loadAllBtn.style.opacity = '1';
-            
-            // Skjul tilbake-knapp
-            backToDropdownBtn.style.display = 'none';
-            
-            console.log('✅ Dropdown-modus gjenopprettet');
-        }
-
-        // Function to initialize dropdown options (for dynamically loaded codes)
-        function initializeDropdownOptions() {
-            const dropdownOptions = document.getElementById('dropdownOptions');
-            const options = dropdownOptions.querySelectorAll('.dropdown-option');
-
-            // Handle option selection for new options
-            options.forEach(option => {
-                option.addEventListener('click', function() {
-                    const value = this.getAttribute('data-value');
-                    const code = this.querySelector('.option-code').textContent;
-                    const description = this.querySelector('.option-description').textContent;
-                    
-                    console.log('🎯 Valgt NACE-kode:', value, code, description);
-                    
-                    const dropdownInput = document.getElementById('bransjekode');
-                    dropdownInput.value = value;
-                    document.getElementById('dropdownMenu').classList.remove('show');
-                    
-                    console.log('✅ Dropdown input verdi satt til:', dropdownInput.value);
-                });
-            });
-        }
-
-        // Oppdater søkefunksjonen til å bruke performSearch
+        // Enkel søkefunksjon
         document.getElementById('searchForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            currentPage = 0; // Reset til første side ved nytt søk
-            await performSearch();
+            console.log('🔍 Søk startet!');
+            
+            const searchBtn = document.getElementById('searchBtn');
+            const loading = document.getElementById('loading');
+            const resultsCard = document.getElementById('resultsCard');
+            const error = document.getElementById('error');
+            
+            // Vis loading
+            searchBtn.disabled = true;
+            searchBtn.textContent = '🔍 Søker...';
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            resultsCard.style.display = 'block';
+            
+            try {
+                const bransjekode = document.getElementById('bransjekode').value;
+                const min_ansatte = parseInt(document.getElementById('min_ansatte').value) || 0;
+                
+                console.log('📤 Sender søk:', { bransjekode, min_ansatte });
+                
+                const response = await fetch('/api/sok', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        bransjekode: bransjekode,
+                        min_ansatte: min_ansatte,
+                        page: 0
+                    })
+                });
+                
+                console.log('📡 Response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('📊 Response data:', data);
+                    
+                    if (data.success) {
+                        currentResults = data.selskaper;
+                        displayResults(data.selskaper, data.antall);
+                    } else {
+                        showError(data.error || 'Søket feilet');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    showError(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+            } catch (err) {
+                console.error('💥 Feil:', err);
+                showError('Kunne ikke koble til serveren: ' + err.message);
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = '🔍 Start søk';
+                loading.style.display = 'none';
+            }
         });
 
-        function displayResults(selskaper, antall, paginationData = null) {
+        function displayResults(selskaper, antall) {
+            console.log('🎯 Viser resultater:', selskaper, antall);
+            
             const resultsCount = document.getElementById('resultsCount');
             const resultsTable = document.getElementById('resultsTable');
             const resultsBody = document.getElementById('resultsBody');
             const exportBtn = document.getElementById('exportBtn');
             const statsGrid = document.getElementById('statsGrid');
             const emptyState = document.getElementById('emptyState');
-            const pagination = document.getElementById('pagination');
-            
-            console.log('🎯 displayResults kalt med:', selskaper, antall, paginationData);
-            console.log('🎯 selskaper type:', typeof selskaper);
-            console.log('🎯 selskaper isArray:', Array.isArray(selskaper));
-            console.log('🎯 antall type:', typeof antall);
-            
-            // Sett currentResults globalt
-            currentResults = selskaper;
-            console.log('🎯 currentResults satt til:', currentResults);
-            console.log('🎯 currentResults length:', currentResults ? currentResults.length : 'undefined');
             
             resultsCount.textContent = `${antall} bedrifter funnet`;
             exportBtn.style.display = 'flex';
@@ -1236,22 +736,12 @@
                 emptyState.style.display = 'block';
                 resultsTable.style.display = 'none';
                 statsGrid.style.display = 'none';
-                pagination.style.display = 'none';
-                console.log('⚠️ Ingen resultater å vise');
                 return;
             }
             
             emptyState.style.display = 'none';
             resultsTable.style.display = 'block';
             statsGrid.style.display = 'block';
-            
-            // Vis paginering hvis det finnes
-            if (paginationData && paginationData.total_pages > 1) {
-                pagination.style.display = 'block';
-                updatePagination(paginationData);
-            } else {
-                pagination.style.display = 'none';
-            }
             
             // Vis statistikk
             displayStats(selskaper);
@@ -1274,15 +764,22 @@
                 resultsBody.appendChild(row);
             });
             
-            console.log('✅ Resultater vist, exportBtn synlig:', exportBtn.style.display);
-            console.log('✅ currentResults etter displayResults:', currentResults);
+            console.log('✅ Resultater vist');
         }
 
         function displayStats(selskaper) {
             const statsGrid = document.getElementById('statsGrid');
             
             // Beregn statistikk
-            const totalEmployees = selskaper.reduce((sum, s) => sum + (parseInt(s.antall_ansatte) || 0), 0);
+            const totalEmployees = selskaper.reduce((sum, s) => {
+                const ansatte = s.antall_ansatte;
+                if (ansatte === 'Ukjent' || ansatte === '' || ansatte === null || ansatte === undefined) {
+                    return sum;
+                }
+                const num = parseInt(ansatte);
+                return sum + (isNaN(num) ? 0 : num);
+            }, 0);
+            
             const avgEmployees = totalEmployees / selskaper.length || 0;
             const cities = [...new Set(selskaper.map(s => s.poststed).filter(Boolean))];
             
@@ -1304,13 +801,224 @@
                     <div class="stat-label">Totalt ansatte</div>
                 </div>
             `;
+            
+            // Vis analyser
+            displayAnalysis(selskaper);
+        }
+
+        function displayAnalysis(selskaper) {
+            const analysisSection = document.getElementById('analysisSection');
+            analysisSection.style.display = 'block';
+            
+            // Generer poststed fordeling
+            generatePoststedChart(selskaper);
+            
+            // Generer NACE-kode fordeling
+            generateNaceChart(selskaper);
+            
+            // Generer ansatte fordeling
+            generateAnsatteChart(selskaper);
+            
+            // Generer top 10 poststeder
+            generateTopPoststedChart(selskaper);
+            
+            // Generer geografisk fordeling
+            generateGeoChart(selskaper);
+        }
+
+        function generatePoststedChart(selskaper) {
+            const chartContainer = document.getElementById('poststedChart');
+            
+            // Grupper på poststed
+            const poststedCount = {};
+            selskaper.forEach(s => {
+                const poststed = s.poststed || 'Ukjent';
+                poststedCount[poststed] = (poststedCount[poststed] || 0) + 1;
+            });
+            
+            // Sorter etter antall
+            const sortedPoststed = Object.entries(poststedCount)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 8); // Vis top 8
+            
+            const maxCount = Math.max(...sortedPoststed.map(([,count]) => count));
+            
+            chartContainer.innerHTML = sortedPoststed.map(([poststed, count]) => {
+                const percentage = ((count / selskaper.length) * 100).toFixed(1);
+                const barWidth = (count / maxCount) * 100;
+                
+                return `
+                    <div class="bar-item">
+                        <div class="bar-label">${poststed}</div>
+                        <div class="bar-container">
+                            <div class="bar-fill" style="width: ${barWidth}%"></div>
+                        </div>
+                        <div class="bar-value">${count} (${percentage}%)</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function generateNaceChart(selskaper) {
+            const chartContainer = document.getElementById('naceChart');
+            
+            // Grupper på NACE-kode
+            const naceCount = {};
+            selskaper.forEach(s => {
+                const nace = s.nace_kode || 'Ukjent';
+                naceCount[nace] = (naceCount[nace] || 0) + 1;
+            });
+            
+            // Sorter etter antall
+            const sortedNace = Object.entries(naceCount)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 6); // Vis top 6
+            
+            const maxCount = Math.max(...sortedNace.map(([,count]) => count));
+            
+            chartContainer.innerHTML = sortedNace.map(([nace, count]) => {
+                const percentage = ((count / selskaper.length) * 100).toFixed(1);
+                const barWidth = (count / maxCount) * 100;
+                
+                return `
+                    <div class="bar-item">
+                        <div class="bar-label">${nace}</div>
+                        <div class="bar-container">
+                            <div class="bar-fill" style="width: ${barWidth}%"></div>
+                        </div>
+                        <div class="bar-value">${count} (${percentage}%)</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function generateAnsatteChart(selskaper) {
+            const chartContainer = document.getElementById('ansatteChart');
+            
+            // Grupper på antall ansatte
+            const ansatteGroups = {
+                '0-5': 0,
+                '6-10': 0,
+                '11-25': 0,
+                '26-50': 0,
+                '51-100': 0,
+                '100+': 0
+            };
+            
+            selskaper.forEach(s => {
+                const ansatte = parseInt(s.antall_ansatte) || 0;
+                if (ansatte <= 5) ansatteGroups['0-5']++;
+                else if (ansatte <= 10) ansatteGroups['6-10']++;
+                else if (ansatte <= 25) ansatteGroups['11-25']++;
+                else if (ansatte <= 50) ansatteGroups['26-50']++;
+                else if (ansatte <= 100) ansatteGroups['51-100']++;
+                else ansatteGroups['100+']++;
+            });
+            
+            const maxCount = Math.max(...Object.values(ansatteGroups));
+            
+            chartContainer.innerHTML = Object.entries(ansatteGroups).map(([group, count]) => {
+                if (count === 0) return '';
+                
+                const percentage = ((count / selskaper.length) * 100).toFixed(1);
+                const barWidth = (count / maxCount) * 100;
+                
+                return `
+                    <div class="bar-item">
+                        <div class="bar-label">${group}</div>
+                        <div class="bar-container">
+                            <div class="bar-fill" style="width: ${barWidth}%"></div>
+                        </div>
+                        <div class="bar-value">${count} (${percentage}%)</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function generateTopPoststedChart(selskaper) {
+            const chartContainer = document.getElementById('topPoststedChart');
+            
+            // Grupper på poststed
+            const poststedCount = {};
+            selskaper.forEach(s => {
+                const poststed = s.poststed || 'Ukjent';
+                poststedCount[poststed] = (poststedCount[poststed] || 0) + 1;
+            });
+            
+            // Sorter og ta top 10
+            const topPoststed = Object.entries(poststedCount)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 10);
+            
+            // Farger for pie chart
+            const colors = [
+                '#059665', '#10b981', '#34d399', '#6ee7b7', '#a7f3d0',
+                '#047857', '#065f46', '#064e3b', '#022c22', '#011a0f'
+            ];
+            
+            chartContainer.innerHTML = topPoststed.map(([poststed, count], index) => {
+                const percentage = ((count / selskaper.length) * 100).toFixed(1);
+                const color = colors[index % colors.length];
+                
+                return `
+                    <div class="pie-item">
+                        <div class="pie-color" style="background: ${color}"></div>
+                        <div class="pie-label">${poststed}</div>
+                        <div class="pie-value">${count} (${percentage}%)</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function generateGeoChart(selskaper) {
+            const chartContainer = document.getElementById('geoChart');
+            
+            // Grupper på region (basert på postnummer)
+            const regionCount = {};
+            selskaper.forEach(s => {
+                const poststed = s.poststed || 'Ukjent';
+                let region = 'Ukjent';
+                
+                // Enkel region-kategorisering basert på poststed
+                if (poststed.includes('Oslo') || poststed.includes('Bærum') || poststed.includes('Asker')) {
+                    region = 'Oslo/Viken';
+                } else if (poststed.includes('Bergen') || poststed.includes('Stavanger') || poststed.includes('Trondheim')) {
+                    region = 'Storbyer';
+                } else if (poststed.includes('Kristiansand') || poststed.includes('Tromsø') || poststed.includes('Bodø')) {
+                    region = 'Mellomstore byer';
+                } else if (poststed !== 'Ukjent') {
+                    region = 'Andre byer';
+                }
+                
+                regionCount[region] = (regionCount[region] || 0) + 1;
+            });
+            
+            // Sorter etter antall
+            const sortedRegions = Object.entries(regionCount)
+                .sort(([,a], [,b]) => b - a);
+            
+            const maxCount = Math.max(...sortedRegions.map(([,count]) => count));
+            
+            chartContainer.innerHTML = sortedRegions.map(([region, count]) => {
+                const percentage = ((count / selskaper.length) * 100).toFixed(1);
+                const barWidth = (count / maxCount) * 100;
+                
+                return `
+                    <div class="bar-item">
+                        <div class="bar-label">${region}</div>
+                        <div class="bar-container">
+                            <div class="bar-fill" style="width: ${barWidth}%"></div>
+                        </div>
+                        <div class="bar-value">${count} (${percentage}%)</div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function showError(message) {
             const error = document.getElementById('error');
             error.textContent = message;
             error.style.display = 'block';
-            error.className = 'error-message';
         }
 
         function showSuccess(message) {
@@ -1324,266 +1032,54 @@
         document.addEventListener('DOMContentLoaded', function() {
             const exportBtn = document.getElementById('exportBtn');
             if (exportBtn) {
-                console.log('🎯 Export button found:', exportBtn);
                 exportBtn.addEventListener('click', handleExport);
-            } else {
-                console.error('❌ Export button not found!');
             }
         });
 
         async function handleExport() {
-            console.log('🚀 Export function called!');
-            
             const exportBtn = document.getElementById('exportBtn');
-            if (!exportBtn) {
-                console.error('❌ Export button not found in handleExport!');
-                return;
-            }
-            
             exportBtn.disabled = true;
             exportBtn.innerHTML = '📊 Eksporterer...';
             
-            console.log('📊 Eksport startet!');
-            console.log('📊 currentResults:', currentResults);
-            console.log('📊 currentResults type:', typeof currentResults);
-            console.log('📊 currentResults length:', currentResults ? currentResults.length : 'undefined');
-            console.log('📊 currentResults isArray:', Array.isArray(currentResults));
-            
-            if (!currentResults || currentResults.length === 0) {
-                console.error('❌ Ingen data å eksportere!');
-                showError('Ingen data å eksportere. Gjør et søk først.');
-                exportBtn.disabled = false;
-                exportBtn.innerHTML = '📊 Eksporter til Excel';
-                return;
-            }
-            
             try {
-                // Hent alle resultater for eksport (ikke bare den nåværende siden)
-                const bransjekode = document.getElementById('bransjekode').value;
-                const min_ansatte = Math.max(0, parseInt(document.getElementById('min_ansatte').value) || 0);
+                const exportData = { selskaper: currentResults };
                 
-                console.log('📤 Henter alle resultater for eksport...');
-                
-                const response = await fetch('/api/sok', {
+                const response = await fetch('/api/eksporter', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        bransjekode: bransjekode,
-                        min_ansatte: min_ansatte,
-                        page: 0,
-                        export_all: true  // Spesialflag for å få alle resultater
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(exportData)
                 });
                 
                 if (response.ok) {
-                    const data = await response.json();
+                    const blob = await response.blob();
                     
-                    if (data.success) {
-                        const allResults = data.selskaper;
-                        console.log(f'📊 Eksporterer alle {allResults.length} resultater');
-                        
-                        const exportData = { selskaper: allResults };
-                        console.log('📤 Sender data til eksport API:', exportData);
-                        
-                        const exportResponse = await fetch('/api/eksporter', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(exportData)
-                        });
-                        
-                        if (exportResponse.ok) {
-                            const blob = await exportResponse.blob();
-                            console.log('📄 Excel blob mottatt:', blob.size, 'bytes');
-                            
-                            // Opprett download link
-                            const url = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = 'selskaper_export.xlsx';
-                            a.style.display = 'none';
-                            
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            
-                            window.URL.revokeObjectURL(url);
-                            
-                            console.log('✅ Excel-fil lastet ned');
-                            showSuccess('📊 Eksport ferdig! Excel-filen er lastet ned.');
-                        } else {
-                            const errorText = await exportResponse.text();
-                            console.error('❌ Eksport feil:', exportResponse.status, errorText);
-                            showError(`Kunne ikke eksportere filen (${exportResponse.status}): ${errorText}`);
-                        }
-                    } else {
-                        showError('Kunne ikke hente alle resultater for eksport');
-                    }
+                    // Opprett download link
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'selskaper_export.xlsx';
+                    a.style.display = 'none';
+                    
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    
+                    window.URL.revokeObjectURL(url);
+                    
+                    showSuccess('📊 Eksport ferdig! Excel-filen er lastet ned.');
                 } else {
-                    showError('Kunne ikke hente alle resultater for eksport');
+                    const errorText = await response.text();
+                    showError(`Kunne ikke eksportere filen: ${errorText}`);
                 }
                 
             } catch (err) {
                 console.error('💥 Eksport feil:', err);
-                console.error('💥 Error stack:', err.stack);
                 showError('Kunne ikke eksportere filen: ' + err.message);
             } finally {
                 exportBtn.disabled = false;
                 exportBtn.innerHTML = '📊 Eksporter til Excel';
             }
         }
-
-        // Smooth scroll to results
-        function scrollToResults() {
-            const resultsCard = document.getElementById('resultsCard');
-            if (resultsCard.style.display !== 'none') {
-                resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }
-
-        // Add smooth scroll after search
-        document.getElementById('searchForm').addEventListener('submit', function() {
-            setTimeout(scrollToResults, 100);
-        });
-        
-        // Paginering variabler
-        let currentPage = 0;
-        let currentSearchParams = {};
-        
-        // Oppdater paginering
-        function updatePagination(paginationData) {
-            const paginationText = document.getElementById('paginationText');
-            const pageNumbers = document.getElementById('pageNumbers');
-            const prevPageBtn = document.getElementById('prevPageBtn');
-            const nextPageBtn = document.getElementById('nextPageBtn');
-            
-            // Oppdater tekst
-            const startResult = (paginationData.page * paginationData.page_size) + 1;
-            const endResult = Math.min((paginationData.page + 1) * paginationData.page_size, paginationData.antall);
-            paginationText.textContent = `Viser ${startResult}-${endResult} av ${paginationData.antall} resultater`;
-            
-            // Oppdater knapper
-            prevPageBtn.disabled = !paginationData.has_previous;
-            nextPageBtn.disabled = !paginationData.has_next;
-            
-            // Oppdater sidetall
-            pageNumbers.innerHTML = '';
-            const totalPages = paginationData.total_pages;
-            const currentPageNum = paginationData.page + 1;
-            
-            // Vis maksimalt 7 sidetall
-            let startPage = Math.max(1, currentPageNum - 3);
-            let endPage = Math.min(totalPages, currentPageNum + 3);
-            
-            // Juster hvis vi er nær starten eller slutten
-            if (currentPageNum <= 4) {
-                endPage = Math.min(7, totalPages);
-            } else if (currentPageNum >= totalPages - 3) {
-                startPage = Math.max(1, totalPages - 6);
-            }
-            
-            for (let i = startPage; i <= endPage; i++) {
-                const pageBtn = document.createElement('span');
-                pageBtn.className = `page-number ${i === currentPageNum ? 'active' : ''}`;
-                pageBtn.textContent = i;
-                pageBtn.onclick = () => goToPage(i - 1);
-                pageNumbers.appendChild(pageBtn);
-            }
-        }
-        
-        // Gå til spesifikk side
-        function goToPage(page) {
-            currentPage = page;
-            performSearch();
-        }
-        
-        // Forrige side
-        function previousPage() {
-            if (currentPage > 0) {
-                currentPage--;
-                performSearch();
-            }
-        }
-        
-        // Neste side
-        function nextPage() {
-            currentPage++;
-            performSearch();
-        }
-        
-        // Utfør søk med paginering
-        async function performSearch() {
-            const searchBtn = document.getElementById('searchBtn');
-            const loading = document.getElementById('loading');
-            const resultsCard = document.getElementById('resultsCard');
-            const error = document.getElementById('error');
-            
-            // Debug logging
-            const bransjekode = document.getElementById('bransjekode').value;
-            const min_ansatte = Math.max(0, parseInt(document.getElementById('min_ansatte').value) || 0);
-            
-            console.log('🔍 Søk startet med:');
-            console.log('   - Bransjekode:', bransjekode);
-            console.log('   - Min ansatte:', min_ansatte);
-            console.log('   - Side:', currentPage);
-            console.log('   - Bransjekode type:', typeof bransjekode);
-            console.log('   - Min ansatte type:', typeof min_ansatte);
-            
-            // Vis loading og skjul feil
-            searchBtn.disabled = true;
-            searchBtn.textContent = '🔍 Søker...';
-            loading.style.display = 'block';
-            error.style.display = 'none';
-            resultsCard.style.display = 'block';
-            
-            try {
-                const formData = {
-                    bransjekode: bransjekode,
-                    min_ansatte: min_ansatte,
-                    page: currentPage
-                };
-                
-                console.log('📤 Sender data til API:', formData);
-                
-                const response = await fetch('/api/sok', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                console.log('📡 API response status:', response.status);
-                
-                const data = await response.json();
-                console.log('📊 API response data:', data);
-                
-                if (data.success) {
-                    currentResults = data.selskaper;
-                    displayResults(data.selskaper, data.antall, data);
-                } else {
-                    showError(data.error || 'En feil oppstod under søket');
-                }
-                
-            } catch (err) {
-                console.error('💥 Feil under søk:', err);
-                showError('Kunne ikke koble til serveren');
-            } finally {
-                searchBtn.disabled = false;
-                searchBtn.textContent = '🔍 Start søk';
-                loading.style.display = 'none';
-            }
-        }
-        
-        // Oppdater søkefunksjonen til å bruke performSearch
-        document.getElementById('searchForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            currentPage = 0; // Reset til første side ved nytt søk
-            await performSearch();
-        });
     </script>
 </body>
 </html>
