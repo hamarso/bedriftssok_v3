@@ -573,13 +573,12 @@
             <form id="searchForm">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="bransjekode">
-                            NACE-kode (bransje)
-                            <button type="button" class="test-search-btn" onclick="testSearch()">Test søk</button>
-                            <button type="button" class="load-all-btn" onclick="loadAllNaceCodes()">Last alle koder</button>
-                        </label>
+                                        <label for="bransjekode">
+                    NACE-kode (bransje)
+                    <button type="button" class="load-all-btn" onclick="loadAllNaceCodes()">Annen NACE-kode</button>
+                </label>
                         <div class="dropdown-container">
-                            <input type="text" id="bransjekode" name="bransjekode" value="70.220" placeholder="Velg fra liste, søk, eller skriv inn kode manuelt" class="dropdown-input">
+                            <input type="text" id="bransjekode" name="bransjekode" value="70.220" placeholder="Velg fra liste eller skriv inn kode manuelt" class="dropdown-input">
                             <span class="dropdown-arrow">▼</span>
                             <div class="dropdown-menu" id="dropdownMenu">
                                 <div class="dropdown-header">
@@ -822,11 +821,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="help-text">
-                            <small>
-                                💡 <strong>Tips:</strong> Du kan velge fra listen, søke etter bransje, eller skrive inn hvilken som helst NACE-kode manuelt (f.eks. 69.200, 62.010, etc.)
-                            </small>
-                        </div>
+                                        <div class="help-text">
+                    <small>
+                        💡 <strong>Tips:</strong> Du kan velge fra listen eller skrive inn hvilken som helst NACE-kode manuelt (f.eks. 69.200, 62.010, etc.)
+                    </small>
+                </div>
                     </div>
                     <div class="form-group">
                         <label for="min_ansatte">Minimum antall ansatte</label>
@@ -1021,80 +1020,28 @@
             }
         }
 
-        // Test search functionality
-        function testSearch() {
-            console.log('Testing search functionality...');
-            
-            // Test searching for "regnskap"
-            const dropdownSearch = document.getElementById('dropdownSearch');
-            const dropdownMenu = document.getElementById('dropdownMenu');
-            
-            // Open dropdown
-            dropdownMenu.classList.add('show');
-            
-            // Set search term
-            dropdownSearch.value = 'regnskap';
-            dropdownSearch.focus();
-            
-            // Trigger search
-            filterOptions('regnskap');
-            
-            console.log('Search test completed. Check dropdown for results.');
-        }
 
-        // Function to load all NACE codes
-        async function loadAllNaceCodes() {
-            const dropdownMenu = document.getElementById('dropdownMenu');
-            const dropdownOptions = document.getElementById('dropdownOptions');
-            const dropdownSearch = document.getElementById('dropdownSearch');
+
+        // Function to enable manual NACE code input
+        function loadAllNaceCodes() {
+            console.log('🔄 Aktiverer manuell NACE-kode input...');
+            
+            // Fjern readonly og aktiver manuell input
             const dropdownInput = document.getElementById('bransjekode');
-
-            // Clear current options
-            dropdownOptions.innerHTML = '';
-            dropdownSearch.value = ''; // Clear search input
-            dropdownInput.value = ''; // Clear selected value
-            dropdownInput.placeholder = 'Velg fra liste, søk, eller skriv inn kode manuelt';
-
-            // Show loading state
-            dropdownMenu.classList.add('show');
-            dropdownSearch.focus();
-
-            try {
-                const response = await fetch('/api/nace-koder');
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('Fetched all NACE codes:', data);
-
-                    if (data.success && data.nace_koder) {
-                        data.nace_koder.forEach(code => {
-                            const option = document.createElement('div');
-                            option.className = 'dropdown-option';
-                            option.setAttribute('data-value', code);
-                            option.innerHTML = `
-                                <span class="option-code">${code}</span>
-                                <span class="option-description">NACE-kode ${code}</span>
-                            `;
-                            dropdownOptions.appendChild(option);
-                        });
-                        
-                        // Re-initialize dropdown functionality for new options
-                        initializeDropdownOptions();
-                        allOptions = Array.from(dropdownOptions.querySelectorAll('.dropdown-option'));
-                        filterOptions(''); // Show all options after loading
-                        
-                        console.log(`✅ Lastet ${data.nace_koder.length} NACE-koder`);
-                    } else {
-                        showError('Ingen NACE-koder funnet');
-                    }
-                } else {
-                    showError('Kunne ikke hente alle NACE-koder');
-                }
-            } catch (err) {
-                console.error('💥 Feil under henting av NACE-koder:', err);
-                showError('Kunne ikke hente alle NACE-koder');
-            } finally {
-                dropdownMenu.classList.remove('show');
-            }
+            dropdownInput.removeAttribute('readonly');
+            dropdownInput.placeholder = 'Skriv inn hvilken som helst NACE-kode (f.eks. 69.200, 62.010)';
+            
+            // Skjul dropdown-menyen
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            dropdownMenu.style.display = 'none';
+            
+            // Endre knappetekst
+            const loadAllBtn = document.querySelector('.load-all-btn');
+            loadAllBtn.textContent = 'Manuell input aktivert';
+            loadAllBtn.disabled = true;
+            loadAllBtn.style.opacity = '0.6';
+            
+            console.log('✅ Manuell NACE-kode input aktivert');
         }
 
         // Function to initialize dropdown options (for dynamically loaded codes)
