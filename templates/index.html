@@ -163,7 +163,7 @@
 
         .form-row {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 1.5rem;
         }
 
@@ -646,6 +646,10 @@
                         <label for="min_ansatte">Minimum antall ansatte</label>
                         <input type="number" id="min_ansatte" name="min_ansatte" value="0" min="0" placeholder="f.eks. 0, 10, 100">
                     </div>
+                    <div class="form-group">
+                        <label for="max_ansatte">Maksimum antall ansatte</label>
+                        <input type="number" id="max_ansatte" name="max_ansatte" min="0" placeholder="f.eks. 50, 100, 500">
+                    </div>
                 </div>
                 
                 <div class="form-row">
@@ -657,9 +661,6 @@
                         <label for="poststed">Poststed</label>
                         <input type="text" id="poststed" name="poststed" placeholder="f.eks. 'Oslo', 'Bergen', 'Trondheim'">
                     </div>
-                </div>
-                
-                <div class="form-row">
                     <div class="form-group">
                         <label for="organisasjonsform">Organisasjonsform</label>
                         <select id="organisasjonsform" name="organisasjonsform">
@@ -673,9 +674,24 @@
                             <option value="BA">BA (Selskap med delt ansvar)</option>
                         </select>
                     </div>
+                </div>
+                
+                <div class="form-row">
                     <div class="form-group">
                         <label for="registreringsdato">Registrert etter</label>
                         <input type="date" id="registreringsdato" name="registreringsdato" placeholder="ÅÅÅÅ-MM-DD">
+                    </div>
+                    <div class="form-group">
+                        <label for="etablert_etter">Etablert etter år</label>
+                        <input type="number" id="etablert_etter" name="etablert_etter" min="1900" max="2025" placeholder="f.eks. 2000, 2010, 2020">
+                    </div>
+                    <div class="form-group">
+                        <label for="momsregistrert">Momsregistrert</label>
+                        <select id="momsregistrert" name="momsregistrert">
+                            <option value="">Alle</option>
+                            <option value="true">Ja</option>
+                            <option value="false">Nei</option>
+                        </select>
                     </div>
                 </div>
                 
@@ -1233,7 +1249,7 @@
             }
         }
 
-        async function fetchAllResults(bransjekode, min_ansatte, bedriftsnavn, poststed, organisasjonsform, registreringsdato) {
+        async function fetchAllResults(bransjekode, min_ansatte, max_ansatte, bedriftsnavn, poststed, organisasjonsform, registreringsdato, etablert_etter, momsregistrert) {
             try {
                 const response = await fetch('/api/sok', {
                     method: 'POST',
@@ -1241,10 +1257,13 @@
                     body: JSON.stringify({
                         bransjekode: bransjekode,
                         min_ansatte: min_ansatte,
+                        max_ansatte: max_ansatte,
                         bedriftsnavn: bedriftsnavn,
                         poststed: poststed,
                         organisasjonsform: organisasjonsform,
                         registreringsdato: registreringsdato,
+                        etablert_etter: etablert_etter,
+                        momsregistrert: momsregistrert,
                         export_all: true
                     })
                 });
@@ -1277,23 +1296,31 @@
             try {
                 const bransjekode = document.getElementById('bransjekode').value;
                 const min_ansatte = parseInt(document.getElementById('min_ansatte').value) || 0;
+                const max_ansatte = parseInt(document.getElementById('max_ansatte').value) || 0;
                 const bedriftsnavn = document.getElementById('bedriftsnavn').value;
                 const poststed = document.getElementById('poststed').value;
                 const organisasjonsform = document.getElementById('organisasjonsform').value;
                 const registreringsdato = document.getElementById('registreringsdato').value;
+                const etablert_etter = parseInt(document.getElementById('etablert_etter').value) || 0;
+                const momsregistrert = document.getElementById('momsregistrert').value;
                 
-                console.log('📤 Sender søk:', { bransjekode, min_ansatte, bedriftsnavn, poststed, organisasjonsform, registreringsdato });
+                console.log('📤 Sender søk:', { bransjekode, min_ansatte, max_ansatte, bedriftsnavn, poststed, organisasjonsform, registreringsdato, etablert_etter, momsregistrert });
                 
                 const response = await fetch('/api/sok', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                     body: JSON.stringify({
                         bransjekode: bransjekode,
                         min_ansatte: min_ansatte,
+                        max_ansatte: max_ansatte,
                         bedriftsnavn: bedriftsnavn,
                         poststed: poststed,
                         organisasjonsform: organisasjonsform,
                         registreringsdato: registreringsdato,
+                        etablert_etter: etablert_etter,
+                        momsregistrert: momsregistrert,
                         page: currentPage
                     })
                 });
@@ -1308,7 +1335,7 @@
                         // Lagre alle resultater for paginering
                         if (data.page === 0) {
                             // Første side - hent alle resultater for paginering
-                            fetchAllResults(bransjekode, min_ansatte, bedriftsnavn, poststed, organisasjonsform, registreringsdato);
+                            fetchAllResults(bransjekode, min_ansatte, max_ansatte, bedriftsnavn, poststed, organisasjonsform, registreringsdato, etablert_etter, momsregistrert);
                         } else {
                             // Andre sider - vis resultater
                             currentResults = data.selskaper;
