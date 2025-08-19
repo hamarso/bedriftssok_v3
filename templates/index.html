@@ -97,6 +97,7 @@
 
         .form-group {
             margin-bottom: 1.5rem;
+            position: relative;
         }
 
         .form-group label {
@@ -124,12 +125,119 @@
         .form-group input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
             transform: translateY(-1px);
         }
 
         .form-group input::placeholder {
             color: var(--text-light);
+        }
+
+        .dropdown-container {
+            position: relative;
+        }
+
+        .dropdown-input {
+            cursor: pointer;
+            background: var(--bg-primary);
+        }
+
+        .dropdown-input:focus {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .dropdown-arrow {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            transition: transform 0.2s ease;
+            color: var(--text-light);
+        }
+
+        .dropdown-input:focus + .dropdown-arrow {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-primary);
+            border: 2px solid var(--primary);
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-search {
+            padding: 0.75rem 1rem;
+            border: none;
+            border-bottom: 1px solid var(--border-light);
+            width: 100%;
+            font-size: 0.875rem;
+            background: var(--bg-secondary);
+            border-radius: 0;
+        }
+
+        .dropdown-search:focus {
+            outline: none;
+            background: var(--bg-primary);
+        }
+
+        .dropdown-options {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .dropdown-option {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-light);
+            transition: background-color 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dropdown-option:hover {
+            background: var(--bg-secondary);
+        }
+
+        .dropdown-option.selected {
+            background: rgba(5, 150, 105, 0.1);
+            color: var(--primary);
+        }
+
+        .option-code {
+            font-weight: 600;
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: var(--primary);
+        }
+
+        .option-description {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-align: right;
+            max-width: 200px;
+        }
+
+        .no-results {
+            padding: 1rem;
+            text-align: center;
+            color: var(--text-light);
+            font-style: italic;
         }
 
         .form-row {
@@ -409,7 +517,203 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="bransjekode">NACE-kode (bransje)</label>
-                        <input type="text" id="bransjekode" name="bransjekode" value="70.220" placeholder="f.eks. 70.220 for konsulentvirksomhet">
+                        <div class="dropdown-container">
+                            <input type="text" id="bransjekode" name="bransjekode" value="70.220" placeholder="Velg eller søk etter bransje" class="dropdown-input" readonly>
+                            <span class="dropdown-arrow">▼</span>
+                            <div class="dropdown-menu" id="dropdownMenu">
+                                <input type="text" class="dropdown-search" placeholder="Søk etter bransje..." id="dropdownSearch">
+                                <div class="dropdown-options" id="dropdownOptions">
+                                    <div class="dropdown-option" data-value="70.220">
+                                        <span class="option-code">70.220</span>
+                                        <span class="option-description">Konsulentvirksomhet innen forretningsadministrasjon</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="62.010">
+                                        <span class="option-code">62.010</span>
+                                        <span class="option-description">Programvareutvikling</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="62.020">
+                                        <span class="option-code">62.020</span>
+                                        <span class="option-description">Rådgivning innen informasjonsteknologi</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="43.210">
+                                        <span class="option-code">43.210</span>
+                                        <span class="option-description">Elektrisk installasjon</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="43.220">
+                                        <span class="option-code">43.220</span>
+                                        <span class="option-description">VVS-installasjon</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="41.200">
+                                        <span class="option-code">41.200</span>
+                                        <span class="option-description">Bygging av boliger</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="42.210">
+                                        <span class="option-code">42.210</span>
+                                        <span class="option-description">Bygging av veier og motorveier</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.110">
+                                        <span class="option-code">47.110</span>
+                                        <span class="option-description">Butikk med dagligvarer</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.190">
+                                        <span class="option-code">47.190</span>
+                                        <span class="option-description">Butikk med andre dagligvarer</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.210">
+                                        <span class="option-code">47.210</span>
+                                        <span class="option-description">Butikk med tekstil, klær og sko</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.310">
+                                        <span class="option-code">47.310</span>
+                                        <span class="option-description">Butikk med brensel</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.410">
+                                        <span class="option-code">47.410</span>
+                                        <span class="option-description">Butikk med datamaskiner og programvare</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.420">
+                                        <span class="option-code">47.420</span>
+                                        <span class="option-description">Butikk med telekommunikasjonsutstyr</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.510">
+                                        <span class="option-code">47.510</span>
+                                        <span class="option-description">Butikk med møbler, belysning og husholdningsartikler</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.520">
+                                        <span class="option-code">47.520</span>
+                                        <span class="option-description">Butikk med glass, maling og byggematerialer</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.530">
+                                        <span class="option-code">47.530</span>
+                                        <span class="option-description">Butikk med tapeter, gulvbelegg og tekstil</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.540">
+                                        <span class="option-code">47.540</span>
+                                        <span class="option-description">Butikk med elektriske husholdningsartikler</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.550">
+                                        <span class="option-code">47.550</span>
+                                        <span class="option-description">Butikk med musikk og video</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.560">
+                                        <span class="option-code">47.560</span>
+                                        <span class="option-description">Butikk med sportsartikler</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.570">
+                                        <span class="option-code">47.570</span>
+                                        <span class="option-description">Butikk med leker og spill</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.580">
+                                        <span class="option-code">47.580</span>
+                                        <span class="option-description">Butikk med ur, smykker og sølvvarer</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.590">
+                                        <span class="option-code">47.590</span>
+                                        <span class="option-description">Butikk med andre nye varer</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.610">
+                                        <span class="option-code">47.610</span>
+                                        <span class="option-description">Butikk med brukte varer</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.620">
+                                        <span class="option-code">47.620</span>
+                                        <span class="option-description">Marked uten fast beliggenhet</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.630">
+                                        <span class="option-code">47.630</span>
+                                        <span class="option-description">Postordresalg</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.640">
+                                        <span class="option-code">47.640</span>
+                                        <span class="option-description">Internettbasert handel</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.650">
+                                        <span class="option-code">47.650</span>
+                                        <span class="option-description">Varehandel via automatiske salgsmaskiner</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.660">
+                                        <span class="option-code">47.660</span>
+                                        <span class="option-description">Varehandel via andre kanaler</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.710">
+                                        <span class="option-code">47.710</span>
+                                        <span class="option-description">Butikk med bøker</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.720">
+                                        <span class="option-code">47.720</span>
+                                        <span class="option-description">Butikk med aviser og papirvarer</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.730">
+                                        <span class="option-code">47.730</span>
+                                        <span class="option-description">Butikk med apotekvarer</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.740">
+                                        <span class="option-code">47.740</span>
+                                        <span class="option-description">Butikk med optiske artikler og fotoutstyr</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.750">
+                                        <span class="option-code">47.750</span>
+                                        <span class="option-description">Butikk med kosmetikk og toalettartikler</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.760">
+                                        <span class="option-code">47.760</span>
+                                        <span class="option-description">Butikk med blomster, planter, frø og gjødsel</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.770">
+                                        <span class="option-code">47.770</span>
+                                        <span class="option-description">Butikk med dyr og dyrefôr</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.780">
+                                        <span class="option-code">47.780</span>
+                                        <span class="option-description">Butikk med aviser og tobakksvarer</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.790">
+                                        <span class="option-code">47.790</span>
+                                        <span class="option-description">Butikk med andre spesialvarer</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.810">
+                                        <span class="option-code">47.810</span>
+                                        <span class="option-description">Butikk med mat og drikke</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.820">
+                                        <span class="option-code">47.820</span>
+                                        <span class="option-description">Butikk med tobakksvarer</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.830">
+                                        <span class="option-code">47.830</span>
+                                        <span class="option-description">Butikk med aviser og papirvarer</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.840">
+                                        <span class="option-code">47.840</span>
+                                        <span class="option-description">Butikk med andre dagligvarer</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.850">
+                                        <span class="option-code">47.850</span>
+                                        <span class="option-description">Butikk med andre varer</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.860">
+                                        <span class="option-code">47.860</span>
+                                        <span class="option-description">Butikk med andre tjenester</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.870">
+                                        <span class="option-code">47.870</span>
+                                        <span class="option-description">Butikk med andre produkter</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.880">
+                                        <span class="option-code">47.880</span>
+                                        <span class="option-description">Butikk med andre tjenester</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.890">
+                                        <span class="option-code">47.890</span>
+                                        <span class="option-description">Butikk med andre varer</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="47.900">
+                                        <span class="option-code">47.900</span>
+                                        <span class="option-description">Butikk med andre tjenester</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="min_ansatte">Minimum antall ansatte</label>
@@ -470,6 +774,102 @@
 
     <script>
         let currentResults = [];
+        let allOptions = [];
+
+        // Initialize dropdown functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDropdown();
+        });
+
+        function initializeDropdown() {
+            const dropdownInput = document.getElementById('bransjekode');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            const dropdownSearch = document.getElementById('dropdownSearch');
+            const dropdownOptions = document.getElementById('dropdownOptions');
+            const options = dropdownOptions.querySelectorAll('.dropdown-option');
+
+            // Store all options for search functionality
+            allOptions = Array.from(options);
+
+            // Toggle dropdown on input click
+            dropdownInput.addEventListener('click', function(e) {
+                e.preventDefault();
+                dropdownMenu.classList.toggle('show');
+                if (dropdownMenu.classList.contains('show')) {
+                    dropdownSearch.focus();
+                }
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!dropdownInput.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+
+            // Handle search functionality
+            dropdownSearch.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                filterOptions(searchTerm);
+            });
+
+            // Handle option selection
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    const value = this.getAttribute('data-value');
+                    const code = this.querySelector('.option-code').textContent;
+                    const description = this.querySelector('.option-description').textContent;
+                    
+                    dropdownInput.value = value;
+                    dropdownInput.setAttribute('data-description', description);
+                    dropdownMenu.classList.remove('show');
+                    
+                    // Update placeholder to show selected description
+                    dropdownInput.placeholder = `${code} - ${description}`;
+                });
+            });
+
+            // Handle keyboard navigation
+            dropdownSearch.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+        }
+
+        function filterOptions(searchTerm) {
+            const dropdownOptions = document.getElementById('dropdownOptions');
+            const options = dropdownOptions.querySelectorAll('.dropdown-option');
+            
+            options.forEach(option => {
+                const code = option.querySelector('.option-code').textContent;
+                const description = option.querySelector('.option-description').textContent;
+                const text = `${code} ${description}`.toLowerCase();
+                
+                if (text.includes(searchTerm)) {
+                    option.style.display = 'flex';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+
+            // Show no results message if no options match
+            const visibleOptions = Array.from(options).filter(option => 
+                option.style.display !== 'none'
+            );
+            
+            let noResults = dropdownOptions.querySelector('.no-results');
+            if (visibleOptions.length === 0) {
+                if (!noResults) {
+                    noResults = document.createElement('div');
+                    noResults.className = 'no-results';
+                    noResults.textContent = 'Ingen resultater funnet';
+                    dropdownOptions.appendChild(noResults);
+                }
+            } else if (noResults) {
+                noResults.remove();
+            }
+        }
 
         document.getElementById('searchForm').addEventListener('submit', async function(e) {
             e.preventDefault();
