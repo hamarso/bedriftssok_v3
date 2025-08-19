@@ -24,8 +24,8 @@
             --text-primary: #1f2937;
             --text-secondary: #6b7280;
             --text-light: #9ca3af;
-            --bg-primary: #f8fafc;
-            --bg-secondary: #f1f5f9;
+            --bg-primary: #fefefe;
+            --bg-secondary: #f8f9fa;
             --border: #e5e7eb;
             --border-light: #f3f4f6;
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -37,7 +37,7 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8fafc;
+            background: #fefefe;
             min-height: 100vh;
             color: var(--text-primary);
             line-height: 1.6;
@@ -90,7 +90,7 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            background: var(--primary);
         }
 
         .form-group {
@@ -120,6 +120,36 @@
             color: var(--text-primary);
         }
 
+        .form-group select {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 1rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 3rem;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .form-group select:hover {
+            border-color: var(--primary);
+        }
+
         .form-group input:focus {
             outline: none;
             border-color: var(--primary);
@@ -138,7 +168,7 @@
         }
 
         .search-btn {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: var(--primary);
             color: white;
             border: none;
             padding: 1rem 2rem;
@@ -202,7 +232,7 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, var(--success), var(--primary));
+            background: var(--success);
         }
 
         .results-header {
@@ -418,7 +448,7 @@
 
         .bar-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            background: var(--primary);
             border-radius: 12px;
             transition: width 0.3s ease;
         }
