@@ -190,5 +190,204 @@ def eksporter_excel():
             'error': str(e)
         }), 500
 
+@app.route('/api/nace-koder', methods=['GET'])
+def hent_nace_koder():
+    """API-endepunkt for å hente alle tilgjengelige NACE-koder"""
+    try:
+        print("🔍 Henter alle tilgjengelige NACE-koder...")
+        
+        # Hent alle NACE-koder fra Brønnøysundregisteret
+        nace_koder = hent_alle_nace_koder()
+        
+        print(f"✅ Fant {len(nace_koder)} NACE-koder")
+        
+        return jsonify({
+            'success': True,
+            'nace_koder': nace_koder,
+            'antall': len(nace_koder)
+        })
+    
+    except Exception as e:
+        print(f"💥 Feil ved henting av NACE-koder: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+def hent_alle_nace_koder():
+    """Henter alle tilgjengelige NACE-koder fra Brønnøysundregisteret"""
+    url = "https://data.brreg.no/enhetsregisteret/api/enheter"
+    nace_koder = set()
+    
+    # Test med forskjellige NACE-koder for å finne de som eksisterer
+    # Vi kan ikke hente alle automatisk, så vi bruker en omfattende liste
+    test_koder = [
+        # 69 - Juridiske og regnskapsmessige tjenester
+        '69.100', '69.101', '69.102', '69.103', '69.104', '69.105', '69.106', '69.107', '69.108', '69.109',
+        '69.200', '69.201', '69.202', '69.203', '69.204', '69.205', '69.206', '69.207', '69.208', '69.209',
+        
+        # 70 - Hovedkontor og konsulentvirksomhet
+        '70.100', '70.101', '70.102', '70.103', '70.104', '70.105', '70.106', '70.107', '70.108', '70.109',
+        '70.200', '70.201', '70.202', '70.203', '70.204', '70.205', '70.206', '70.207', '70.208', '70.209',
+        '70.210', '70.211', '70.212', '70.213', '70.214', '70.215', '70.216', '70.217', '70.218', '70.219',
+        '70.220', '70.221', '70.222', '70.223', '70.224', '70.225', '70.226', '70.227', '70.228', '70.229',
+        
+        # 62 - IT-tjenester
+        '62.010', '62.020', '62.030', '62.040', '62.050', '62.060', '62.070', '62.080', '62.090',
+        
+        # 43 - Bygge- og anleggsinstallasjon
+        '43.100', '43.200', '43.210', '43.220', '43.290', '43.300', '43.400', '43.500', '43.600', '43.700', '43.800', '43.900',
+        
+        # 41 - Bygging av boliger
+        '41.100', '41.200', '41.300', '41.400', '41.500', '41.600', '41.700', '41.800', '41.900',
+        
+        # 42 - Bygging av anlegg
+        '42.100', '42.200', '42.210', '42.220', '42.300', '42.400', '42.500', '42.600', '42.700', '42.800', '42.900',
+        
+        # 47 - Varehandel
+        '47.100', '47.200', '47.300', '47.400', '47.500', '47.600', '47.700', '47.800', '47.900',
+        
+        # 56 - Servering og drikkesteder
+        '56.100', '56.200', '56.300', '56.400', '56.500', '56.600', '56.700', '56.800', '56.900',
+        
+        # 58 - Utgivelse av programvare
+        '58.100', '58.200', '58.300', '58.400', '58.500', '58.600', '58.700', '58.800', '58.900',
+        
+        # 59 - Film, video og TV
+        '59.100', '59.110', '59.120', '59.130', '59.140', '59.200', '59.300', '59.400', '59.500', '59.600', '59.700', '59.800', '59.900',
+        
+        # 60 - Radio og TV
+        '60.100', '60.200', '60.300', '60.400', '60.500', '60.600', '60.700', '60.800', '60.900',
+        
+        # 61 - Telekommunikasjon
+        '61.100', '61.200', '61.300', '61.400', '61.500', '61.600', '61.700', '61.800', '61.900',
+        
+        # 63 - IT-tjenesteyting
+        '63.100', '63.110', '63.120', '63.200', '63.300', '63.400', '63.500', '63.600', '63.700', '63.800', '63.900',
+        
+        # 64 - Finansielle tjenester
+        '64.100', '64.200', '64.300', '64.400', '64.500', '64.600', '64.700', '64.800', '64.900',
+        
+        # 65 - Forsikring og pensjon
+        '65.100', '65.200', '65.300', '65.400', '65.500', '65.600', '65.700', '65.800', '65.900',
+        
+        # 66 - Finansielle tjenester
+        '66.100', '66.200', '66.300', '66.400', '66.500', '66.600', '66.700', '66.800', '66.900',
+        
+        # 68 - Eiendomsvirksomhet
+        '68.100', '68.200', '68.300', '68.400', '68.500', '68.600', '68.700', '68.800', '68.900',
+        
+        # 71 - Arkitektur og ingeniørvirksomhet
+        '71.100', '71.200', '71.300', '71.400', '71.500', '71.600', '71.700', '71.800', '71.900',
+        
+        # 72 - Vitenskapelig forskning og utvikling
+        '72.100', '72.200', '72.300', '72.400', '72.500', '72.600', '72.700', '72.800', '72.900',
+        
+        # 73 - Reklame og markedsundersøkelser
+        '73.100', '73.200', '73.300', '73.400', '73.500', '73.600', '73.700', '73.800', '73.900',
+        
+        # 74 - Annen faglig, vitenskapelig og teknisk virksomhet
+        '74.100', '74.200', '74.300', '74.400', '74.500', '74.600', '74.700', '74.800', '74.900',
+        
+        # 75 - Veterinærvirksomhet
+        '75.100', '75.200', '75.300', '75.400', '75.500', '75.600', '75.700', '75.800', '75.900',
+        
+        # 77 - Utleie og leasing
+        '77.100', '77.200', '77.300', '77.400', '77.500', '77.600', '77.700', '77.800', '77.900',
+        
+        # 78 - Arbeidskraft
+        '78.100', '78.200', '78.300', '78.400', '78.500', '78.600', '78.700', '78.800', '78.900',
+        
+        # 79 - Reisearrangører, reisebyråer og reservasjonssystemer
+        '79.100', '79.200', '79.300', '79.400', '79.500', '79.600', '79.700', '79.800', '79.900',
+        
+        # 80 - Sikkerhet og etterforskning
+        '80.100', '80.200', '80.300', '80.400', '80.500', '80.600', '80.700', '80.800', '80.900',
+        
+        # 81 - Tjenester til bygninger og landskap
+        '81.100', '81.200', '81.300', '81.400', '81.500', '81.600', '81.700', '81.800', '81.900',
+        
+        # 82 - Kontor- og andre forretningsstøttetjenester
+        '82.100', '82.200', '82.300', '82.400', '82.500', '82.600', '82.700', '82.800', '82.900',
+        
+        # 85 - Utdanning
+        '85.100', '85.200', '85.300', '85.400', '85.500', '85.600', '85.700', '85.800', '85.900',
+        
+        # 86 - Helse
+        '86.100', '86.200', '86.300', '86.400', '86.500', '86.600', '86.700', '86.800', '86.900',
+        
+        # 87 - Omsorg
+        '87.100', '87.200', '87.300', '87.400', '87.500', '87.600', '87.700', '87.800', '87.900',
+        
+        # 88 - Sosiale tjenester
+        '88.100', '88.200', '88.300', '88.400', '88.500', '88.600', '88.700', '88.800', '88.900',
+        
+        # 90 - Kunst, underholdning og rekreasjon
+        '90.100', '90.200', '90.300', '90.400', '90.500', '90.600', '90.700', '90.800', '90.900',
+        
+        # 91 - Biblioteker, arkiver, museer og andre kulturelle aktiviteter
+        '91.100', '91.200', '91.300', '91.400', '91.500', '91.600', '91.700', '91.800', '91.900',
+        
+        # 92 - Spill og veddemål
+        '92.100', '92.200', '92.300', '92.400', '92.500', '92.600', '92.700', '92.800', '92.900',
+        
+        # 93 - Sport, underholdning og rekreasjon
+        '93.100', '93.200', '93.300', '93.400', '93.500', '93.600', '93.700', '93.800', '93.900',
+        
+        # 94 - Medlemsorganisasjoner
+        '94.100', '94.200', '94.300', '94.400', '94.500', '94.600', '94.700', '94.800', '94.900',
+        
+        # 95 - Reparasjon av datamaskiner og personlige og husholdningsartikler
+        '95.100', '95.200', '95.300', '95.400', '95.500', '95.600', '95.700', '95.800', '95.900',
+        
+        # 96 - Andre personlige tjenester
+        '96.100', '96.200', '96.300', '96.400', '96.500', '96.600', '96.700', '96.800', '96.900',
+        
+        # 97 - Husholdninger som ansetter husholdningspersonale
+        '97.000',
+        
+        # 98 - Husholdninger som produserer varer og tjenester for egen bruk
+        '98.100', '98.200', '98.300', '98.400', '98.500', '98.600', '98.700', '98.800', '98.900',
+        
+        # 99 - Eksterritoriale organisasjoner og organer
+        '99.000'
+    ]
+    
+    print(f"🔍 Tester {len(test_koder)} NACE-koder...")
+    
+    for i, code in enumerate(test_koder):
+        try:
+            params = {
+                'naeringskode': code,
+                'size': 1  # Bare sjekk om det finnes noen
+            }
+            
+            response = requests.get(url, params=params, timeout=5)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Sjekk om det finnes bedrifter med denne koden
+                if 'page' in data and 'totalElements' in data['page']:
+                    total = data['page']['totalElements']
+                    if total > 0:
+                        nace_koder.add(code)
+                        if len(nace_koder) % 10 == 0:  # Log hver 10. kode
+                            print(f"   ✅ Funnet {len(nace_koder)} koder så langt...")
+            
+            # Legg til en liten pause for å ikke overbelaste API-et
+            if i % 50 == 0:
+                import time
+                time.sleep(0.1)
+                
+        except Exception as e:
+            # Ignorer feil for individuelle koder
+            continue
+    
+    print(f"✅ Totalt funnet {len(nace_koder)} NACE-koder med bedrifter")
+    return sorted(list(nace_koder))
+
 if __name__ == '__main__':
     app.run(debug=True)

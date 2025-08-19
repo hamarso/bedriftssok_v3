@@ -519,6 +519,22 @@
         .test-search-btn:hover {
             background: #d97706;
         }
+
+        .load-all-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+
+        .load-all-btn:hover {
+            background: var(--primary-dark);
+        }
     </style>
 </head>
 <body>
@@ -535,6 +551,7 @@
                         <label for="bransjekode">
                             NACE-kode (bransje)
                             <button type="button" class="test-search-btn" onclick="testSearch()">Test søk</button>
+                            <button type="button" class="load-all-btn" onclick="loadAllNaceCodes()">Last alle koder</button>
                         </label>
                         <div class="dropdown-container">
                             <input type="text" id="bransjekode" name="bransjekode" value="70.220" placeholder="Velg eller søk etter bransje" class="dropdown-input" readonly>
@@ -546,13 +563,29 @@
                                         <span class="option-code">70.220</span>
                                         <span class="option-description">Konsulentvirksomhet innen forretningsadministrasjon</span>
                                     </div>
-                                    <div class="dropdown-option" data-value="69.200">
-                                        <span class="option-code">69.200</span>
-                                        <span class="option-description">Regnskapsførere, revisjon og rådgivning</span>
+                                    <div class="dropdown-option" data-value="69.201">
+                                        <span class="option-code">69.201</span>
+                                        <span class="option-description">Regnskapsførere (4,461 bedrifter)</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="69.202">
+                                        <span class="option-code">69.202</span>
+                                        <span class="option-description">Revisjon (800 bedrifter)</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="69.203">
+                                        <span class="option-code">69.203</span>
+                                        <span class="option-description">Rådgivning innen regnskap (64 bedrifter)</span>
                                     </div>
                                     <div class="dropdown-option" data-value="69.100">
                                         <span class="option-code">69.100</span>
-                                        <span class="option-description">Advokatvirksomhet og rettshjelp</span>
+                                        <span class="option-description">Advokatvirksomhet og rettshjelp (2,873 bedrifter)</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="70.100">
+                                        <span class="option-code">70.100</span>
+                                        <span class="option-description">Hovedkontor (25,710 bedrifter)</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="70.210">
+                                        <span class="option-code">70.210</span>
+                                        <span class="option-description">Konsulentvirksomhet innen offentlig administrasjon (1,879 bedrifter)</span>
                                     </div>
                                     <div class="dropdown-option" data-value="62.010">
                                         <span class="option-code">62.010</span>
@@ -953,6 +986,84 @@
             filterOptions('regnskap');
             
             console.log('Search test completed. Check dropdown for results.');
+        }
+
+        // Function to load all NACE codes
+        async function loadAllNaceCodes() {
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            const dropdownOptions = document.getElementById('dropdownOptions');
+            const dropdownSearch = document.getElementById('dropdownSearch');
+            const dropdownInput = document.getElementById('bransjekode');
+
+            // Clear current options
+            dropdownOptions.innerHTML = '';
+            dropdownSearch.value = ''; // Clear search input
+            dropdownInput.value = ''; // Clear selected value
+            dropdownInput.placeholder = 'Velg eller søk etter bransje';
+
+            // Show loading state
+            dropdownMenu.classList.add('show');
+            dropdownSearch.focus();
+
+            try {
+                const response = await fetch('/api/nace-koder');
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Fetched all NACE codes:', data);
+
+                    if (data.success && data.nace_koder) {
+                        data.nace_koder.forEach(code => {
+                            const option = document.createElement('div');
+                            option.className = 'dropdown-option';
+                            option.setAttribute('data-value', code);
+                            option.innerHTML = `
+                                <span class="option-code">${code}</span>
+                                <span class="option-description">NACE-kode ${code}</span>
+                            `;
+                            dropdownOptions.appendChild(option);
+                        });
+                        
+                        // Re-initialize dropdown functionality for new options
+                        initializeDropdownOptions();
+                        allOptions = Array.from(dropdownOptions.querySelectorAll('.dropdown-option'));
+                        filterOptions(''); // Show all options after loading
+                        
+                        console.log(`✅ Lastet ${data.nace_koder.length} NACE-koder`);
+                    } else {
+                        showError('Ingen NACE-koder funnet');
+                    }
+                } else {
+                    showError('Kunne ikke hente alle NACE-koder');
+                }
+            } catch (err) {
+                console.error('💥 Feil under henting av NACE-koder:', err);
+                showError('Kunne ikke hente alle NACE-koder');
+            } finally {
+                dropdownMenu.classList.remove('show');
+            }
+        }
+
+        // Function to initialize dropdown options (for dynamically loaded codes)
+        function initializeDropdownOptions() {
+            const dropdownOptions = document.getElementById('dropdownOptions');
+            const options = dropdownOptions.querySelectorAll('.dropdown-option');
+
+            // Handle option selection for new options
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    const value = this.getAttribute('data-value');
+                    const code = this.querySelector('.option-code').textContent;
+                    const description = this.querySelector('.option-description').textContent;
+                    
+                    console.log('🎯 Valgt NACE-kode:', value, code, description);
+                    
+                    const dropdownInput = document.getElementById('bransjekode');
+                    dropdownInput.value = value;
+                    document.getElementById('dropdownMenu').classList.remove('show');
+                    
+                    console.log('✅ Dropdown input verdi satt til:', dropdownInput.value);
+                });
+            });
         }
 
         document.getElementById('searchForm').addEventListener('submit', async function(e) {
