@@ -12,32 +12,61 @@ def hente_selskaper_med_kriterier(bransjekode, min_ansatte):
     """Henter selskaper basert på bransjekode og minimum antall ansatte"""
     url = "https://data.brreg.no/enhetsregisteret/api/enheter"
     selskaper = []
+    
+    # Oppdaterte parametere for Brønnøysundregisteret API
     params = {
         'naeringskode': bransjekode,
-        'fraAntallAnsatte': min_ansatte,
         'size': 1000
     }
-
-    while True:
-        try:
-            response = requests.get(url, params=params, timeout=30)
-            if response.status_code == 200:
-                data = response.json()
-                if '_embedded' in data and 'enheter' in data['_embedded']:
-                    selskaper.extend(data['_embedded']['enheter'])
-                    if 'next' in data['_links']:
-                        params['page'] = params.get('page', 0) + 1
+    
+    # Legg til antall ansatte parameter kun hvis det er større enn 0
+    if min_ansatte > 0:
+        params['fraAntallAnsatte'] = min_ansatte
+    
+    print(f"🔍 Søker med parametere: {params}")
+    
+    try:
+        response = requests.get(url, params=params, timeout=30)
+        print(f"📡 API Response Status: {response.status_code}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            print(f"📊 API Response keys: {list(data.keys())}")
+            
+            if '_embedded' in data and 'enheter' in data['_embedded']:
+                selskaper.extend(data['_embedded']['enheter'])
+                print(f"✅ Fant {len(data['_embedded']['enheter'])} bedrifter i første batch")
+                
+                # Håndter paginering
+                page = 0
+                while 'next' in data.get('_links', {}):
+                    page += 1
+                    params['page'] = page
+                    
+                    print(f"📄 Henter side {page + 1}...")
+                    response = requests.get(url, params=params, timeout=30)
+                    
+                    if response.status_code == 200:
+                        data = response.json()
+                        if '_embedded' in data and 'enheter' in data['_embedded']:
+                            selskaper.extend(data['_embedded']['enheter'])
+                            print(f"✅ Fant {len(data['_embedded']['enheter'])} bedrifter på side {page + 1}")
+                        else:
+                            break
                     else:
+                        print(f"❌ Feil på side {page + 1}: {response.status_code}")
                         break
-                else:
-                    break
             else:
-                print(f'Feil under henting av data: {response.status_code}')
-                break
-        except Exception as e:
-            print(f'Feil under henting av data: {str(e)}')
-            break
-
+                print(f"⚠️ Ingen '_embedded' eller 'enheter' i API response")
+                print(f"📋 Response struktur: {data}")
+        else:
+            print(f'❌ API feil: {response.status_code}')
+            print(f'📋 Response tekst: {response.text[:500]}')
+            
+    except Exception as e:
+        print(f'💥 Feil under henting av data: {str(e)}')
+    
+    print(f"🎯 Totalt antall bedrifter funnet: {len(selskaper)}")
     return selskaper
 
 @app.route('/')
@@ -51,21 +80,42 @@ def sok_selskaper():
     try:
         data = request.get_json()
         bransjekode = data.get('bransjekode', '70.220')
-        min_ansatte = int(data.get('min_ansatte', 100))
+        min_ansatte = int(data.get('min_ansatte', 0))
+        
+        print(f"🚀 API søk mottatt:")
+        print(f"   - Bransjekode: {bransjekode}")
+        print(f"   - Min ansatte: {min_ansatte}")
         
         selskaper = hente_selskaper_med_kriterier(bransjekode, min_ansatte)
+        
+        print(f"📊 Rå data mottatt: {len(selskaper)} bedrifter")
         
         # Formater data for frontend
         formaterte_selskaper = []
         for selskap in selskaper:
+            # Håndter tomme verdier for antall ansatte
+            antall_ansatte = selskap.get('antallAnsatte', '')
+            if antall_ansatte == '' or antall_ansatte is None:
+                antall_ansatte = 'Ukjent'
+            
             formaterte_selskaper.append({
                 'organisasjonsnummer': selskap.get('organisasjonsnummer', ''),
                 'navn': selskap.get('navn', ''),
                 'poststed': selskap.get('forretningsadresse', {}).get('poststed', ''),
-                'antall_ansatte': selskap.get('antallAnsatte', ''),
+                'antall_ansatte': antall_ansatte,
                 'nace_kode': selskap.get('naeringskode1', {}).get('kode', ''),
                 'adresse': selskap.get('forretningsadresse', {}).get('adresse', '')
             })
+        
+        print(f"✅ Formaterte data: {len(formaterte_selskaper)} bedrifter")
+        
+        # Log første bedrift for debugging
+        if formaterte_selskaper:
+            første = formaterte_selskaper[0]
+            print(f"📋 Eksempel på formatert bedrift:")
+            print(f"   - Navn: {første.get('navn', 'N/A')}")
+            print(f"   - NACE: {første.get('nace_kode', 'N/A')}")
+            print(f"   - Ansatte: {første.get('antall_ansatte', 'N/A')}")
         
         return jsonify({
             'success': True,
@@ -74,6 +124,9 @@ def sok_selskaper():
         })
     
     except Exception as e:
+        print(f"💥 Feil i API endpoint: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({
             'success': False,
             'error': str(e)
