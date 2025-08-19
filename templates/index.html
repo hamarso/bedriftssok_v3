@@ -503,6 +503,22 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        .test-search-btn {
+            background: var(--warning);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+
+        .test-search-btn:hover {
+            background: #d97706;
+        }
     </style>
 </head>
 <body>
@@ -516,7 +532,10 @@
             <form id="searchForm">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="bransjekode">NACE-kode (bransje)</label>
+                        <label for="bransjekode">
+                            NACE-kode (bransje)
+                            <button type="button" class="test-search-btn" onclick="testSearch()">Test søk</button>
+                        </label>
                         <div class="dropdown-container">
                             <input type="text" id="bransjekode" name="bransjekode" value="70.220" placeholder="Velg eller søk etter bransje" class="dropdown-input" readonly>
                             <span class="dropdown-arrow">▼</span>
@@ -527,6 +546,14 @@
                                         <span class="option-code">70.220</span>
                                         <span class="option-description">Konsulentvirksomhet innen forretningsadministrasjon</span>
                                     </div>
+                                    <div class="dropdown-option" data-value="69.200">
+                                        <span class="option-code">69.200</span>
+                                        <span class="option-description">Regnskapsførere, revisjon og rådgivning</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="69.100">
+                                        <span class="option-code">69.100</span>
+                                        <span class="option-description">Advokatvirksomhet og rettshjelp</span>
+                                    </div>
                                     <div class="dropdown-option" data-value="62.010">
                                         <span class="option-code">62.010</span>
                                         <span class="option-description">Programvareutvikling</span>
@@ -534,6 +561,14 @@
                                     <div class="dropdown-option" data-value="62.020">
                                         <span class="option-code">62.020</span>
                                         <span class="option-description">Rådgivning innen informasjonsteknologi</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="62.030">
+                                        <span class="option-code">62.030</span>
+                                        <span class="option-description">Databehandling og hosting</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="62.090">
+                                        <span class="option-code">62.090</span>
+                                        <span class="option-description">Annen IT-tjenesteyting</span>
                                     </div>
                                     <div class="dropdown-option" data-value="43.210">
                                         <span class="option-code">43.210</span>
@@ -543,6 +578,10 @@
                                         <span class="option-code">43.220</span>
                                         <span class="option-description">VVS-installasjon</span>
                                     </div>
+                                    <div class="dropdown-option" data-value="43.290">
+                                        <span class="option-code">43.290</span>
+                                        <span class="option-description">Annen bygge- og anleggsinstallasjon</span>
+                                    </div>
                                     <div class="dropdown-option" data-value="41.200">
                                         <span class="option-code">41.200</span>
                                         <span class="option-description">Bygging av boliger</span>
@@ -550,6 +589,14 @@
                                     <div class="dropdown-option" data-value="42.210">
                                         <span class="option-code">42.210</span>
                                         <span class="option-description">Bygging av veier og motorveier</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="42.220">
+                                        <span class="option-code">42.220</span>
+                                        <span class="option-description">Bygging av jernbaner og undergrunnsbaner</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="42.990">
+                                        <span class="option-code">42.990</span>
+                                        <span class="option-description">Bygging av andre anlegg</span>
                                     </div>
                                     <div class="dropdown-option" data-value="47.110">
                                         <span class="option-code">47.110</span>
@@ -810,6 +857,7 @@
             // Handle search functionality
             dropdownSearch.addEventListener('input', function(e) {
                 const searchTerm = e.target.value.toLowerCase();
+                console.log('Searching for:', searchTerm); // Debug log
                 filterOptions(searchTerm);
             });
 
@@ -841,34 +889,66 @@
             const dropdownOptions = document.getElementById('dropdownOptions');
             const options = dropdownOptions.querySelectorAll('.dropdown-option');
             
+            if (!searchTerm || searchTerm.trim() === '') {
+                // Show all options if search is empty
+                options.forEach(option => {
+                    option.style.display = 'flex';
+                });
+                return;
+            }
+            
+            const searchLower = searchTerm.toLowerCase().trim();
+            let hasVisibleOptions = false;
+            
             options.forEach(option => {
                 const code = option.querySelector('.option-code').textContent;
                 const description = option.querySelector('.option-description').textContent;
-                const text = `${code} ${description}`.toLowerCase();
                 
-                if (text.includes(searchTerm)) {
+                // Search in both code and description
+                const codeMatch = code.toLowerCase().includes(searchLower);
+                const descriptionMatch = description.toLowerCase().includes(searchLower);
+                
+                if (codeMatch || descriptionMatch) {
                     option.style.display = 'flex';
+                    hasVisibleOptions = true;
                 } else {
                     option.style.display = 'none';
                 }
             });
 
             // Show no results message if no options match
-            const visibleOptions = Array.from(options).filter(option => 
-                option.style.display !== 'none'
-            );
-            
             let noResults = dropdownOptions.querySelector('.no-results');
-            if (visibleOptions.length === 0) {
+            if (!hasVisibleOptions) {
                 if (!noResults) {
                     noResults = document.createElement('div');
                     noResults.className = 'no-results';
-                    noResults.textContent = 'Ingen resultater funnet';
+                    noResults.textContent = `Ingen resultater funnet for "${searchTerm}"`;
                     dropdownOptions.appendChild(noResults);
                 }
             } else if (noResults) {
                 noResults.remove();
             }
+        }
+
+        // Test search functionality
+        function testSearch() {
+            console.log('Testing search functionality...');
+            
+            // Test searching for "regnskap"
+            const dropdownSearch = document.getElementById('dropdownSearch');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            
+            // Open dropdown
+            dropdownMenu.classList.add('show');
+            
+            // Set search term
+            dropdownSearch.value = 'regnskap';
+            dropdownSearch.focus();
+            
+            // Trigger search
+            filterOptions('regnskap');
+            
+            console.log('Search test completed. Check dropdown for results.');
         }
 
         document.getElementById('searchForm').addEventListener('submit', async function(e) {
