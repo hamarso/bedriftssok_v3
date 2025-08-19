@@ -530,6 +530,22 @@
             background: var(--primary-dark);
         }
 
+        .back-to-dropdown-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 0.5rem;
+        }
+
+        .back-to-dropdown-btn:hover {
+            background: var(--primary);
+        }
+
         .dropdown-header {
             padding: 0.75rem 1rem;
             background: var(--bg-secondary);
@@ -572,6 +588,7 @@
                                         <label for="bransjekode">
                     NACE-kode (bransje)
                     <button type="button" class="load-all-btn" onclick="loadAllNaceCodes()">Annen NACE-kode</button>
+                    <button type="button" class="back-to-dropdown-btn" onclick="backToDropdown()" style="display: none;">Tilbake til dropdown</button>
                 </label>
                         <div class="dropdown-container">
                             <input type="text" id="bransjekode" name="bransjekode" value="70.220" placeholder="Velg fra liste eller skriv inn kode manuelt" class="dropdown-input">
@@ -939,7 +956,7 @@
             // Handle search functionality
             dropdownSearch.addEventListener('input', function(e) {
                 const searchTerm = e.target.value.toLowerCase();
-                console.log('Searching for:', searchTerm); // Debug log
+                console.log('Searching for:', searchTerm);
                 filterOptions(searchTerm);
             });
 
@@ -1018,48 +1035,56 @@
 
 
 
-        // Function to toggle between manual input and search functionality
+        // Function to enable manual input mode
         function loadAllNaceCodes() {
             const dropdownInput = document.getElementById('bransjekode');
             const dropdownMenu = document.getElementById('dropdownMenu');
             const loadAllBtn = document.querySelector('.load-all-btn');
+            const backToDropdownBtn = document.querySelector('.back-to-dropdown-btn');
             
-            // Sjekk om manuell input allerede er aktivert
-            if (loadAllBtn.textContent === 'Manuell input aktivert') {
-                // Gå tilbake til søkefunksjonen
-                console.log('🔄 Aktiverer søkefunksjonen igjen...');
-                
-                // Gjenopprett dropdown-funksjonalitet
-                dropdownInput.placeholder = 'Velg fra liste eller skriv inn kode manuelt';
-                dropdownMenu.style.display = 'block';
-                
-                // Gjenopprett dropdown-funksjonalitet ved å kalle initializeDropdown igjen
-                initializeDropdown();
-                
-                // Endre knappetekst tilbake
-                loadAllBtn.textContent = 'Annen NACE-kode';
-                loadAllBtn.disabled = false;
-                loadAllBtn.style.opacity = '1';
-                
-                console.log('✅ Søkefunksjonen gjenopprettet');
-            } else {
-                // Aktiver manuell input
-                console.log('🔄 Aktiverer manuell NACE-kode input...');
-                
-                // Fjern readonly og aktiver manuell input
-                dropdownInput.removeAttribute('readonly');
-                dropdownInput.placeholder = 'Skriv inn hvilken som helst NACE-kode (f.eks. 69.200, 62.010)';
-                
-                // Skjul dropdown-menyen
-                dropdownMenu.style.display = 'none';
-                
-                // Endre knappetekst
-                loadAllBtn.textContent = 'Manuell input aktivert';
-                loadAllBtn.disabled = true;
-                loadAllBtn.style.opacity = '0.6';
-                
-                console.log('✅ Manuell NACE-kode input aktivert');
-            }
+            // Aktiver manuell input
+            console.log('🔄 Aktiverer manuell NACE-kode input...');
+            
+            // Fjern readonly og aktiver manuell input
+            dropdownInput.removeAttribute('readonly');
+            dropdownInput.placeholder = 'Skriv inn hvilken som helst NACE-kode (f.eks. 69.200, 62.010)';
+            
+            // Skjul dropdown-menyen
+            dropdownMenu.style.display = 'none';
+            
+            // Endre knappetekst
+            loadAllBtn.textContent = 'Manuell input aktivert';
+            loadAllBtn.disabled = true;
+            loadAllBtn.style.opacity = '0.6';
+            
+            // Vis tilbake-knapp
+            backToDropdownBtn.style.display = 'inline-block';
+            
+            console.log('✅ Manuell NACE-kode input aktivert');
+        }
+
+        // Function to go back to dropdown mode
+        function backToDropdown() {
+            const dropdownInput = document.getElementById('bransjekode');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            const loadAllBtn = document.querySelector('.load-all-btn');
+            const backToDropdownBtn = document.querySelector('.back-to-dropdown-btn');
+            
+            console.log('🔄 Går tilbake til dropdown-modus...');
+            
+            // Gjenopprett dropdown-funksjonalitet
+            dropdownInput.placeholder = 'Velg fra liste eller skriv inn kode manuelt';
+            dropdownMenu.style.display = 'block';
+            
+            // Endre knappetekst tilbake
+            loadAllBtn.textContent = 'Annen NACE-kode';
+            loadAllBtn.disabled = false;
+            loadAllBtn.style.opacity = '1';
+            
+            // Skjul tilbake-knapp
+            backToDropdownBtn.style.display = 'none';
+            
+            console.log('✅ Dropdown-modus gjenopprettet');
         }
 
         // Function to initialize dropdown options (for dynamically loaded codes)
