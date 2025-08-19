@@ -81,10 +81,15 @@ def sok_selskaper():
         data = request.get_json()
         bransjekode = data.get('bransjekode', '70.220')
         min_ansatte = int(data.get('min_ansatte', 0))
+        page = int(data.get('page', 0))  # Legg til paginering
+        page_size = 100  # 100 resultater per side
+        export_all = data.get('export_all', False)  # Flag for å få alle resultater
         
         print(f"🚀 API søk mottatt:")
         print(f"   - Bransjekode: {bransjekode}")
         print(f"   - Min ansatte: {min_ansatte}")
+        print(f"   - Side: {page}")
+        print(f"   - Export all: {export_all}")
         
         selskaper = hente_selskaper_med_kriterier(bransjekode, min_ansatte)
         
@@ -98,13 +103,31 @@ def sok_selskaper():
             if antall_ansatte == '' or antall_ansatte is None:
                 antall_ansatte = 'Ukjent'
             
+            # Hent telefonnummer fra kontaktinformasjon
+            telefon = ''
+            if 'kontaktinformasjon' in selskap:
+                kontakt = selskap['kontaktinformasjon']
+                if 'telefonnummer' in kontakt:
+                    telefon = kontakt['telefonnummer']
+                elif 'mobiltelefonnummer' in kontakt:
+                    telefon = kontakt['mobiltelefonnummer']
+            
+            # Hvis ingen telefonnummer funnet, prøv andre felter
+            if not telefon:
+                # Sjekk om det finnes telefonnummer i andre felter
+                for key, value in selskap.items():
+                    if 'telefon' in key.lower() and value:
+                        telefon = value
+                        break
+            
             formaterte_selskaper.append({
                 'organisasjonsnummer': selskap.get('organisasjonsnummer', ''),
                 'navn': selskap.get('navn', ''),
                 'poststed': selskap.get('forretningsadresse', {}).get('poststed', ''),
                 'antall_ansatte': antall_ansatte,
                 'nace_kode': selskap.get('naeringskode1', {}).get('kode', ''),
-                'adresse': selskap.get('forretningsadresse', {}).get('adresse', '')
+                'adresse': selskap.get('forretningsadresse', {}).get('adresse', ''),
+                'telefon': telefon
             })
         
         print(f"✅ Formaterte data: {len(formaterte_selskaper)} bedrifter")
@@ -116,11 +139,34 @@ def sok_selskaper():
             print(f"   - Navn: {første.get('navn', 'N/A')}")
             print(f"   - NACE: {første.get('nace_kode', 'N/A')}")
             print(f"   - Ansatte: {første.get('antall_ansatte', 'N/A')}")
+            print(f"   - Telefon: {første.get('telefon', 'N/A')}")
+        
+        # Hvis export_all er satt, returner alle resultater
+        if export_all:
+            print(f"📄 Eksport modus: Returnerer alle {len(formaterte_selskaper)} resultater")
+            return jsonify({
+                'success': True,
+                'selskaper': formaterte_selskaper,
+                'antall': len(formaterte_selskaper)
+            })
+        
+        # Implementer paginering
+        total_count = len(formaterte_selskaper)
+        start_index = page * page_size
+        end_index = start_index + page_size
+        paginerte_selskaper = formaterte_selskaper[start_index:end_index]
+        
+        print(f"📄 Paginering: Side {page + 1}, viser {len(paginerte_selskaper)} av {total_count} totalt")
         
         return jsonify({
             'success': True,
-            'selskaper': formaterte_selskaper,
-            'antall': len(formaterte_selskaper)
+            'selskaper': paginerte_selskaper,
+            'antall': total_count,
+            'page': page,
+            'page_size': page_size,
+            'total_pages': (total_count + page_size - 1) // page_size,
+            'has_next': end_index < total_count,
+            'has_previous': page > 0
         })
     
     except Exception as e:
@@ -154,7 +200,7 @@ def eksporter_excel():
         sheet.title = "Selskaper"
         
         # Legg til overskrifter
-        headers = ['Organisasjonsnummer', 'Navn', 'Poststed', 'Antall Ansatte', 'NACE-kode', 'Adresse']
+        headers = ['Organisasjonsnummer', 'Navn', 'Poststed', 'Antall Ansatte', 'NACE-kode', 'Adresse', 'Telefon']
         sheet.append(headers)
         
         print(f"📊 Eksporterer {len(selskaper)} selskaper til Excel")
@@ -169,6 +215,7 @@ def eksporter_excel():
             antall_ansatte = str(selskap.get('antall_ansatte', '')) if selskap.get('antall_ansatte') is not None else ''
             nace_kode = str(selskap.get('nace_kode', '')) if selskap.get('nace_kode') is not None else ''
             adresse = str(selskap.get('adresse', '')) if selskap.get('adresse') is not None else ''
+            telefon = str(selskap.get('telefon', '')) if selskap.get('telefon') is not None else ''
             
             sheet.append([
                 organisasjonsnummer,
@@ -176,7 +223,8 @@ def eksporter_excel():
                 poststed,
                 antall_ansatte,
                 nace_kode,
-                adresse
+                adresse,
+                telefon
             ])
         
         print(f"✅ {len(selskaper)} bedrifter lagt til i Excel")

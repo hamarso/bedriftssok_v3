@@ -572,6 +572,82 @@
         .help-text strong {
             color: var(--primary);
         }
+        
+        /* Paginering */
+        .pagination {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            border: 1px solid var(--border-light);
+        }
+        
+        .pagination-info {
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .pagination-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .page-numbers {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .page-number {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            min-width: 2.5rem;
+            text-align: center;
+        }
+        
+        .page-number:hover {
+            background: var(--bg-secondary);
+            border-color: var(--primary);
+        }
+        
+        .page-number.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
     </style>
 </head>
 <body>
@@ -879,11 +955,28 @@
                                 <th>Ansatte</th>
                                 <th>NACE-kode</th>
                                 <th>Adresse</th>
+                                <th>Telefon</th>
                             </tr>
                         </thead>
                         <tbody id="resultsBody">
                         </tbody>
                     </table>
+                </div>
+                
+                <!-- Paginering -->
+                <div id="pagination" class="pagination" style="display: none;">
+                    <div class="pagination-info">
+                        <span id="paginationText"></span>
+                    </div>
+                    <div class="pagination-controls">
+                        <button id="prevPageBtn" class="pagination-btn" onclick="previousPage()" disabled>
+                            ← Forrige
+                        </button>
+                        <span id="pageNumbers" class="page-numbers"></span>
+                        <button id="nextPageBtn" class="pagination-btn" onclick="nextPage()" disabled>
+                            Neste →
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -1110,78 +1203,23 @@
             });
         }
 
+        // Oppdater søkefunksjonen til å bruke performSearch
         document.getElementById('searchForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
-            const searchBtn = document.getElementById('searchBtn');
-            const loading = document.getElementById('loading');
-            const resultsCard = document.getElementById('resultsCard');
-            const error = document.getElementById('error');
-            
-            // Debug logging
-            const bransjekode = document.getElementById('bransjekode').value;
-            const min_ansatte = Math.max(0, parseInt(document.getElementById('min_ansatte').value) || 0);
-            
-            console.log('🔍 Søk startet med:');
-            console.log('   - Bransjekode:', bransjekode);
-            console.log('   - Min ansatte:', min_ansatte);
-            console.log('   - Bransjekode type:', typeof bransjekode);
-            console.log('   - Min ansatte type:', typeof min_ansatte);
-            
-            // Vis loading og skjul feil
-            searchBtn.disabled = true;
-            searchBtn.textContent = '🔍 Søker...';
-            loading.style.display = 'block';
-            error.style.display = 'none';
-            resultsCard.style.display = 'block';
-            
-            try {
-                const formData = {
-                    bransjekode: bransjekode,
-                    min_ansatte: min_ansatte
-                };
-                
-                console.log('📤 Sender data til API:', formData);
-                
-                const response = await fetch('/api/sok', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                console.log('📡 API response status:', response.status);
-                
-                const data = await response.json();
-                console.log('📊 API response data:', data);
-                
-                if (data.success) {
-                    currentResults = data.selskaper;
-                    displayResults(data.selskaper, data.antall);
-                } else {
-                    showError(data.error || 'En feil oppstod under søket');
-                }
-                
-            } catch (err) {
-                console.error('💥 Feil under søk:', err);
-                showError('Kunne ikke koble til serveren');
-            } finally {
-                searchBtn.disabled = false;
-                searchBtn.textContent = '🔍 Start søk';
-                loading.style.display = 'none';
-            }
+            currentPage = 0; // Reset til første side ved nytt søk
+            await performSearch();
         });
 
-        function displayResults(selskaper, antall) {
+        function displayResults(selskaper, antall, paginationData = null) {
             const resultsCount = document.getElementById('resultsCount');
             const resultsTable = document.getElementById('resultsTable');
             const resultsBody = document.getElementById('resultsBody');
             const exportBtn = document.getElementById('exportBtn');
             const statsGrid = document.getElementById('statsGrid');
             const emptyState = document.getElementById('emptyState');
+            const pagination = document.getElementById('pagination');
             
-            console.log('🎯 displayResults kalt med:', selskaper, antall);
+            console.log('🎯 displayResults kalt med:', selskaper, antall, paginationData);
             console.log('🎯 selskaper type:', typeof selskaper);
             console.log('🎯 selskaper isArray:', Array.isArray(selskaper));
             console.log('🎯 antall type:', typeof antall);
@@ -1198,6 +1236,7 @@
                 emptyState.style.display = 'block';
                 resultsTable.style.display = 'none';
                 statsGrid.style.display = 'none';
+                pagination.style.display = 'none';
                 console.log('⚠️ Ingen resultater å vise');
                 return;
             }
@@ -1205,6 +1244,14 @@
             emptyState.style.display = 'none';
             resultsTable.style.display = 'block';
             statsGrid.style.display = 'block';
+            
+            // Vis paginering hvis det finnes
+            if (paginationData && paginationData.total_pages > 1) {
+                pagination.style.display = 'block';
+                updatePagination(paginationData);
+            } else {
+                pagination.style.display = 'none';
+            }
             
             // Vis statistikk
             displayStats(selskaper);
@@ -1218,10 +1265,11 @@
                 row.innerHTML = `
                     <td><code>${selskap.organisasjonsnummer || '-'}</code></td>
                     <td><strong>${selskap.navn || '-'}</strong></td>
-                    <td><code>${selskap.nace_kode || '-'}</code></td>
                     <td>${selskap.poststed || '-'}</td>
                     <td><span class="stat-number">${selskap.antall_ansatte || '-'}</span></td>
+                    <td><code>${selskap.nace_kode || '-'}</code></td>
                     <td>${selskap.adresse || '-'}</td>
+                    <td>${selskap.telefon || '-'}</td>
                 `;
                 resultsBody.appendChild(row);
             });
@@ -1310,56 +1358,72 @@
             }
             
             try {
-                const exportData = { selskaper: currentResults };
-                console.log('📤 Sender data til API:', exportData);
-                console.log('📤 Data JSON string:', JSON.stringify(exportData));
+                // Hent alle resultater for eksport (ikke bare den nåværende siden)
+                const bransjekode = document.getElementById('bransjekode').value;
+                const min_ansatte = Math.max(0, parseInt(document.getElementById('min_ansatte').value) || 0);
                 
-                const response = await fetch('/api/eksporter', {
+                console.log('📤 Henter alle resultater for eksport...');
+                
+                const response = await fetch('/api/sok', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(exportData)
+                    body: JSON.stringify({
+                        bransjekode: bransjekode,
+                        min_ansatte: min_ansatte,
+                        page: 0,
+                        export_all: true  // Spesialflag for å få alle resultater
+                    })
                 });
                 
-                console.log('📡 Eksport API response status:', response.status);
-                console.log('📡 Response ok:', response.ok);
-                console.log('📡 Response headers:', response.headers);
-                
                 if (response.ok) {
-                    const blob = await response.blob();
-                    console.log('📄 Excel blob mottatt:', blob.size, 'bytes');
-                    console.log('📄 Blob type:', blob.type);
-                    console.log('📄 Blob details:', blob);
+                    const data = await response.json();
                     
-                    // Opprett download link
-                    const url = window.URL.createObjectURL(blob);
-                    console.log('🔗 Download URL created:', url);
-                    
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'selskaper_export.xlsx';
-                    a.style.display = 'none';
-                    
-                    console.log('📎 Download link element created');
-                    document.body.appendChild(a);
-                    console.log('📎 Download link added to DOM');
-                    
-                    a.click();
-                    console.log('📎 Download link clicked');
-                    
-                    document.body.removeChild(a);
-                    console.log('📎 Download link removed from DOM');
-                    
-                    window.URL.revokeObjectURL(url);
-                    console.log('🔗 Download URL revoked');
-                    
-                    console.log('✅ Excel-fil lastet ned');
-                    showSuccess('📊 Eksport ferdig! Excel-filen er lastet ned.');
+                    if (data.success) {
+                        const allResults = data.selskaper;
+                        console.log(f'📊 Eksporterer alle {allResults.length} resultater');
+                        
+                        const exportData = { selskaper: allResults };
+                        console.log('📤 Sender data til eksport API:', exportData);
+                        
+                        const exportResponse = await fetch('/api/eksporter', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(exportData)
+                        });
+                        
+                        if (exportResponse.ok) {
+                            const blob = await exportResponse.blob();
+                            console.log('📄 Excel blob mottatt:', blob.size, 'bytes');
+                            
+                            // Opprett download link
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'selskaper_export.xlsx';
+                            a.style.display = 'none';
+                            
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            
+                            window.URL.revokeObjectURL(url);
+                            
+                            console.log('✅ Excel-fil lastet ned');
+                            showSuccess('📊 Eksport ferdig! Excel-filen er lastet ned.');
+                        } else {
+                            const errorText = await exportResponse.text();
+                            console.error('❌ Eksport feil:', exportResponse.status, errorText);
+                            showError(`Kunne ikke eksportere filen (${exportResponse.status}): ${errorText}`);
+                        }
+                    } else {
+                        showError('Kunne ikke hente alle resultater for eksport');
+                    }
                 } else {
-                    const errorText = await response.text();
-                    console.error('❌ Eksport feil:', response.status, errorText);
-                    showError(`Kunne ikke eksportere filen (${response.status}): ${errorText}`);
+                    showError('Kunne ikke hente alle resultater for eksport');
                 }
                 
             } catch (err) {
@@ -1383,6 +1447,142 @@
         // Add smooth scroll after search
         document.getElementById('searchForm').addEventListener('submit', function() {
             setTimeout(scrollToResults, 100);
+        });
+        
+        // Paginering variabler
+        let currentPage = 0;
+        let currentSearchParams = {};
+        
+        // Oppdater paginering
+        function updatePagination(paginationData) {
+            const paginationText = document.getElementById('paginationText');
+            const pageNumbers = document.getElementById('pageNumbers');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            
+            // Oppdater tekst
+            const startResult = (paginationData.page * paginationData.page_size) + 1;
+            const endResult = Math.min((paginationData.page + 1) * paginationData.page_size, paginationData.antall);
+            paginationText.textContent = `Viser ${startResult}-${endResult} av ${paginationData.antall} resultater`;
+            
+            // Oppdater knapper
+            prevPageBtn.disabled = !paginationData.has_previous;
+            nextPageBtn.disabled = !paginationData.has_next;
+            
+            // Oppdater sidetall
+            pageNumbers.innerHTML = '';
+            const totalPages = paginationData.total_pages;
+            const currentPageNum = paginationData.page + 1;
+            
+            // Vis maksimalt 7 sidetall
+            let startPage = Math.max(1, currentPageNum - 3);
+            let endPage = Math.min(totalPages, currentPageNum + 3);
+            
+            // Juster hvis vi er nær starten eller slutten
+            if (currentPageNum <= 4) {
+                endPage = Math.min(7, totalPages);
+            } else if (currentPageNum >= totalPages - 3) {
+                startPage = Math.max(1, totalPages - 6);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('span');
+                pageBtn.className = `page-number ${i === currentPageNum ? 'active' : ''}`;
+                pageBtn.textContent = i;
+                pageBtn.onclick = () => goToPage(i - 1);
+                pageNumbers.appendChild(pageBtn);
+            }
+        }
+        
+        // Gå til spesifikk side
+        function goToPage(page) {
+            currentPage = page;
+            performSearch();
+        }
+        
+        // Forrige side
+        function previousPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                performSearch();
+            }
+        }
+        
+        // Neste side
+        function nextPage() {
+            currentPage++;
+            performSearch();
+        }
+        
+        // Utfør søk med paginering
+        async function performSearch() {
+            const searchBtn = document.getElementById('searchBtn');
+            const loading = document.getElementById('loading');
+            const resultsCard = document.getElementById('resultsCard');
+            const error = document.getElementById('error');
+            
+            // Debug logging
+            const bransjekode = document.getElementById('bransjekode').value;
+            const min_ansatte = Math.max(0, parseInt(document.getElementById('min_ansatte').value) || 0);
+            
+            console.log('🔍 Søk startet med:');
+            console.log('   - Bransjekode:', bransjekode);
+            console.log('   - Min ansatte:', min_ansatte);
+            console.log('   - Side:', currentPage);
+            console.log('   - Bransjekode type:', typeof bransjekode);
+            console.log('   - Min ansatte type:', typeof min_ansatte);
+            
+            // Vis loading og skjul feil
+            searchBtn.disabled = true;
+            searchBtn.textContent = '🔍 Søker...';
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            resultsCard.style.display = 'block';
+            
+            try {
+                const formData = {
+                    bransjekode: bransjekode,
+                    min_ansatte: min_ansatte,
+                    page: currentPage
+                };
+                
+                console.log('📤 Sender data til API:', formData);
+                
+                const response = await fetch('/api/sok', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                console.log('📡 API response status:', response.status);
+                
+                const data = await response.json();
+                console.log('📊 API response data:', data);
+                
+                if (data.success) {
+                    currentResults = data.selskaper;
+                    displayResults(data.selskaper, data.antall, data);
+                } else {
+                    showError(data.error || 'En feil oppstod under søket');
+                }
+                
+            } catch (err) {
+                console.error('💥 Feil under søk:', err);
+                showError('Kunne ikke koble til serveren');
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = '🔍 Start søk';
+                loading.style.display = 'none';
+            }
+        }
+        
+        // Oppdater søkefunksjonen til å bruke performSearch
+        document.getElementById('searchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            currentPage = 0; // Reset til første side ved nytt søk
+            await performSearch();
         });
     </script>
 </body>
