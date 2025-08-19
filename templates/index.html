@@ -868,12 +868,16 @@
                     const code = this.querySelector('.option-code').textContent;
                     const description = this.querySelector('.option-description').textContent;
                     
+                    console.log('🎯 Valgt NACE-kode:', value, code, description);
+                    
                     dropdownInput.value = value;
                     dropdownInput.setAttribute('data-description', description);
                     dropdownMenu.classList.remove('show');
                     
                     // Update placeholder to show selected description
                     dropdownInput.placeholder = `${code} - ${description}`;
+                    
+                    console.log('✅ Dropdown input verdi satt til:', dropdownInput.value);
                 });
             });
 
@@ -959,6 +963,16 @@
             const resultsCard = document.getElementById('resultsCard');
             const error = document.getElementById('error');
             
+            // Debug logging
+            const bransjekode = document.getElementById('bransjekode').value;
+            const min_ansatte = Math.max(0, parseInt(document.getElementById('min_ansatte').value) || 0);
+            
+            console.log('🔍 Søk startet med:');
+            console.log('   - Bransjekode:', bransjekode);
+            console.log('   - Min ansatte:', min_ansatte);
+            console.log('   - Bransjekode type:', typeof bransjekode);
+            console.log('   - Min ansatte type:', typeof min_ansatte);
+            
             // Vis loading og skjul feil
             searchBtn.disabled = true;
             searchBtn.textContent = '🔍 Søker...';
@@ -968,9 +982,11 @@
             
             try {
                 const formData = {
-                    bransjekode: document.getElementById('bransjekode').value,
-                    min_ansatte: Math.max(0, parseInt(document.getElementById('min_ansatte').value) || 0)
+                    bransjekode: bransjekode,
+                    min_ansatte: min_ansatte
                 };
+                
+                console.log('📤 Sender data til API:', formData);
                 
                 const response = await fetch('/api/sok', {
                     method: 'POST',
@@ -980,7 +996,10 @@
                     body: JSON.stringify(formData)
                 });
                 
+                console.log('📡 API response status:', response.status);
+                
                 const data = await response.json();
+                console.log('📊 API response data:', data);
                 
                 if (data.success) {
                     currentResults = data.selskaper;
@@ -990,6 +1009,7 @@
                 }
                 
             } catch (err) {
+                console.error('💥 Feil under søk:', err);
                 showError('Kunne ikke koble til serveren');
             } finally {
                 searchBtn.disabled = false;
