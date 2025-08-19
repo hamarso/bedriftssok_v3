@@ -1008,26 +1008,45 @@
 
 
 
-        // Function to enable manual NACE code input
+        // Function to toggle between manual input and search functionality
         function loadAllNaceCodes() {
-            console.log('🔄 Aktiverer manuell NACE-kode input...');
-            
-            // Fjern readonly og aktiver manuell input
             const dropdownInput = document.getElementById('bransjekode');
-            dropdownInput.removeAttribute('readonly');
-            dropdownInput.placeholder = 'Skriv inn hvilken som helst NACE-kode (f.eks. 69.200, 62.010)';
-            
-            // Skjul dropdown-menyen
             const dropdownMenu = document.getElementById('dropdownMenu');
-            dropdownMenu.style.display = 'none';
-            
-            // Endre knappetekst
             const loadAllBtn = document.querySelector('.load-all-btn');
-            loadAllBtn.textContent = 'Manuell input aktivert';
-            loadAllBtn.disabled = true;
-            loadAllBtn.style.opacity = '0.6';
             
-            console.log('✅ Manuell NACE-kode input aktivert');
+            // Sjekk om manuell input allerede er aktivert
+            if (loadAllBtn.textContent === 'Manuell input aktivert') {
+                // Gå tilbake til søkefunksjonen
+                console.log('🔄 Aktiverer søkefunksjonen igjen...');
+                
+                // Gjenopprett dropdown-funksjonalitet
+                dropdownInput.placeholder = 'Velg fra liste eller skriv inn kode manuelt';
+                dropdownMenu.style.display = 'block';
+                
+                // Endre knappetekst tilbake
+                loadAllBtn.textContent = 'Annen NACE-kode';
+                loadAllBtn.disabled = false;
+                loadAllBtn.style.opacity = '1';
+                
+                console.log('✅ Søkefunksjonen gjenopprettet');
+            } else {
+                // Aktiver manuell input
+                console.log('🔄 Aktiverer manuell NACE-kode input...');
+                
+                // Fjern readonly og aktiver manuell input
+                dropdownInput.removeAttribute('readonly');
+                dropdownInput.placeholder = 'Skriv inn hvilken som helst NACE-kode (f.eks. 69.200, 62.010)';
+                
+                // Skjul dropdown-menyen
+                dropdownMenu.style.display = 'none';
+                
+                // Endre knappetekst
+                loadAllBtn.textContent = 'Manuell input aktivert';
+                loadAllBtn.disabled = true;
+                loadAllBtn.style.opacity = '0.6';
+                
+                console.log('✅ Manuell NACE-kode input aktivert');
+            }
         }
 
         // Function to initialize dropdown options (for dynamically loaded codes)

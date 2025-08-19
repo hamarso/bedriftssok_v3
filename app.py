@@ -157,15 +157,26 @@ def eksporter_excel():
         headers = ['Organisasjonsnummer', 'Navn', 'Poststed', 'Antall Ansatte', 'NACE-kode', 'Adresse']
         sheet.append(headers)
         
+        print(f"📊 Eksporterer {len(selskaper)} selskaper til Excel")
+        print(f"📊 Første selskap data: {selskaper[0] if selskaper else 'Ingen data'}")
+        
         # Legg til data
         for selskap in selskaper:
+            # Sikre at alle verdier er strings og ikke None
+            organisasjonsnummer = str(selskap.get('organisasjonsnummer', '')) if selskap.get('organisasjonsnummer') is not None else ''
+            navn = str(selskap.get('navn', '')) if selskap.get('navn') is not None else ''
+            poststed = str(selskap.get('poststed', '')) if selskap.get('poststed') is not None else ''
+            antall_ansatte = str(selskap.get('antall_ansatte', '')) if selskap.get('antall_ansatte') is not None else ''
+            nace_kode = str(selskap.get('nace_kode', '')) if selskap.get('nace_kode') is not None else ''
+            adresse = str(selskap.get('adresse', '')) if selskap.get('adresse') is not None else ''
+            
             sheet.append([
-                selskap.get('organisasjonsnummer', ''),
-                selskap.get('navn', ''),
-                selskap.get('poststed', ''),
-                selskap.get('antall_ansatte', ''),
-                selskap.get('nace_kode', ''),
-                selskap.get('adresse', '')
+                organisasjonsnummer,
+                navn,
+                poststed,
+                antall_ansatte,
+                nace_kode,
+                adresse
             ])
         
         print(f"✅ {len(selskaper)} bedrifter lagt til i Excel")
@@ -185,17 +196,26 @@ def eksporter_excel():
         
         # Lagre til buffer
         excel_file = io.BytesIO()
-        wb.save(excel_file)
-        excel_file.seek(0)
-        
-        print(f"📄 Excel-fil opprettet, størrelse: {len(excel_file.getvalue())} bytes")
-        
-        return send_file(
-            excel_file,
-            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            as_attachment=True,
-            download_name='selskaper_export.xlsx'
-        )
+        try:
+            wb.save(excel_file)
+            excel_file.seek(0)
+            print(f"📄 Excel-fil opprettet, størrelse: {len(excel_file.getvalue())} bytes")
+            
+            return send_file(
+                excel_file,
+                mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                as_attachment=True,
+                download_name='selskaper_export.xlsx'
+            )
+        except Exception as e:
+            print(f"❌ Feil ved lagring av Excel-fil: {e}")
+            print(f"❌ Feil type: {type(e)}")
+            import traceback
+            traceback.print_exc()
+            return jsonify({
+                'success': False,
+                'error': f'Kunne ikke opprette Excel-fil: {str(e)}'
+            }), 500
     
     except Exception as e:
         print(f"💥 Feil i eksport: {str(e)}")
