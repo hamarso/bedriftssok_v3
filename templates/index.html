@@ -502,21 +502,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .test-search-btn {
-            background: var(--warning);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-left: 1rem;
-        }
 
-        .test-search-btn:hover {
-            background: #d97706;
-        }
 
         .load-all-btn {
             background: var(--primary);
@@ -1138,6 +1124,16 @@
             const statsGrid = document.getElementById('statsGrid');
             const emptyState = document.getElementById('emptyState');
             
+            console.log('🎯 displayResults kalt med:', selskaper, antall);
+            console.log('🎯 selskaper type:', typeof selskaper);
+            console.log('🎯 selskaper isArray:', Array.isArray(selskaper));
+            console.log('🎯 antall type:', typeof antall);
+            
+            // Sett currentResults globalt
+            currentResults = selskaper;
+            console.log('🎯 currentResults satt til:', currentResults);
+            console.log('🎯 currentResults length:', currentResults ? currentResults.length : 'undefined');
+            
             resultsCount.textContent = `${antall} bedrifter funnet`;
             exportBtn.style.display = 'flex';
             
@@ -1145,6 +1141,7 @@
                 emptyState.style.display = 'block';
                 resultsTable.style.display = 'none';
                 statsGrid.style.display = 'none';
+                console.log('⚠️ Ingen resultater å vise');
                 return;
             }
             
@@ -1164,13 +1161,16 @@
                 row.innerHTML = `
                     <td><code>${selskap.organisasjonsnummer || '-'}</code></td>
                     <td><strong>${selskap.navn || '-'}</strong></td>
+                    <td><code>${selskap.nace_kode || '-'}</code></td>
                     <td>${selskap.poststed || '-'}</td>
                     <td><span class="stat-number">${selskap.antall_ansatte || '-'}</span></td>
-                    <td><code>${selskap.nace_kode || '-'}</code></td>
                     <td>${selskap.adresse || '-'}</td>
                 `;
                 resultsBody.appendChild(row);
             });
+            
+            console.log('✅ Resultater vist, exportBtn synlig:', exportBtn.style.display);
+            console.log('✅ currentResults etter displayResults:', currentResults);
         }
 
         function displayStats(selskaper) {
@@ -1207,41 +1207,105 @@
             error.style.display = 'block';
         }
 
-        document.getElementById('exportBtn').addEventListener('click', async function() {
+        // Eksport event listener
+        document.addEventListener('DOMContentLoaded', function() {
             const exportBtn = document.getElementById('exportBtn');
+            if (exportBtn) {
+                console.log('🎯 Export button found:', exportBtn);
+                exportBtn.addEventListener('click', handleExport);
+            } else {
+                console.error('❌ Export button not found!');
+            }
+        });
+
+        async function handleExport() {
+            console.log('🚀 Export function called!');
+            
+            const exportBtn = document.getElementById('exportBtn');
+            if (!exportBtn) {
+                console.error('❌ Export button not found in handleExport!');
+                return;
+            }
+            
             exportBtn.disabled = true;
             exportBtn.innerHTML = '📊 Eksporterer...';
             
+            console.log('📊 Eksport startet!');
+            console.log('📊 currentResults:', currentResults);
+            console.log('📊 currentResults type:', typeof currentResults);
+            console.log('📊 currentResults length:', currentResults ? currentResults.length : 'undefined');
+            console.log('📊 currentResults isArray:', Array.isArray(currentResults));
+            
+            if (!currentResults || currentResults.length === 0) {
+                console.error('❌ Ingen data å eksportere!');
+                showError('Ingen data å eksportere. Gjør et søk først.');
+                exportBtn.disabled = false;
+                exportBtn.innerHTML = '📊 Eksporter til Excel';
+                return;
+            }
+            
             try {
+                const exportData = { selskaper: currentResults };
+                console.log('📤 Sender data til API:', exportData);
+                console.log('📤 Data JSON string:', JSON.stringify(exportData));
+                
                 const response = await fetch('/api/eksporter', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ selskaper: currentResults })
+                    body: JSON.stringify(exportData)
                 });
+                
+                console.log('📡 Eksport API response status:', response.status);
+                console.log('📡 Response ok:', response.ok);
+                console.log('📡 Response headers:', response.headers);
                 
                 if (response.ok) {
                     const blob = await response.blob();
+                    console.log('📄 Excel blob mottatt:', blob.size, 'bytes');
+                    console.log('📄 Blob type:', blob.type);
+                    console.log('📄 Blob details:', blob);
+                    
+                    // Opprett download link
                     const url = window.URL.createObjectURL(blob);
+                    console.log('🔗 Download URL created:', url);
+                    
                     const a = document.createElement('a');
                     a.href = url;
                     a.download = 'selskaper_export.xlsx';
+                    a.style.display = 'none';
+                    
+                    console.log('📎 Download link element created');
                     document.body.appendChild(a);
+                    console.log('📎 Download link added to DOM');
+                    
                     a.click();
-                    window.URL.revokeObjectURL(url);
+                    console.log('📎 Download link clicked');
+                    
                     document.body.removeChild(a);
+                    console.log('📎 Download link removed from DOM');
+                    
+                    window.URL.revokeObjectURL(url);
+                    console.log('🔗 Download URL revoked');
+                    
+                    console.log('✅ Excel-fil lastet ned');
+                    showError(''); // Fjern eventuelle feilmeldinger
                 } else {
-                    showError('Kunne ikke eksportere filen');
+                    const errorText = await response.text();
+                    console.error('❌ Eksport feil:', response.status, errorText);
+                    showError(`Kunne ikke eksportere filen (${response.status}): ${errorText}`);
                 }
                 
             } catch (err) {
-                showError('Kunne ikke eksportere filen');
+                console.error('💥 Eksport feil:', err);
+                console.error('💥 Error stack:', err.stack);
+                showError('Kunne ikke eksportere filen: ' + err.message);
             } finally {
                 exportBtn.disabled = false;
                 exportBtn.innerHTML = '📊 Eksporter til Excel';
             }
-        });
+        }
 
         // Smooth scroll to results
         function scrollToResults() {

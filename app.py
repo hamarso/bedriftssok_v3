@@ -139,6 +139,15 @@ def eksporter_excel():
         data = request.get_json()
         selskaper = data.get('selskaper', [])
         
+        print(f"📊 Eksport startet med {len(selskaper)} bedrifter")
+        
+        if not selskaper:
+            print("⚠️ Ingen bedrifter å eksportere")
+            return jsonify({
+                'success': False,
+                'error': 'Ingen bedrifter å eksportere'
+            }), 400
+        
         # Opprett Excel-arbeidsbok
         wb = Workbook()
         sheet = wb.active
@@ -159,6 +168,8 @@ def eksporter_excel():
                 selskap.get('adresse', '')
             ])
         
+        print(f"✅ {len(selskaper)} bedrifter lagt til i Excel")
+        
         # Auto-juster kolonner
         for column in sheet.columns:
             max_length = 0
@@ -177,6 +188,8 @@ def eksporter_excel():
         wb.save(excel_file)
         excel_file.seek(0)
         
+        print(f"📄 Excel-fil opprettet, størrelse: {len(excel_file.getvalue())} bytes")
+        
         return send_file(
             excel_file,
             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -185,6 +198,9 @@ def eksporter_excel():
         )
     
     except Exception as e:
+        print(f"💥 Feil i eksport: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({
             'success': False,
             'error': str(e)
