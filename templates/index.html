@@ -412,6 +412,16 @@
             font-weight: 500;
         }
 
+        .success-message {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            font-weight: 500;
+        }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1224,6 +1234,14 @@
             const error = document.getElementById('error');
             error.textContent = message;
             error.style.display = 'block';
+            error.className = 'error-message';
+        }
+
+        function showSuccess(message) {
+            const error = document.getElementById('error');
+            error.textContent = message;
+            error.style.display = 'block';
+            error.className = 'success-message';
         }
 
         // Eksport event listener
@@ -1309,7 +1327,7 @@
                     console.log('🔗 Download URL revoked');
                     
                     console.log('✅ Excel-fil lastet ned');
-                    showError(''); // Fjern eventuelle feilmeldinger
+                    showSuccess('📊 Eksport ferdig! Excel-filen er lastet ned.');
                 } else {
                     const errorText = await response.text();
                     console.error('❌ Eksport feil:', response.status, errorText);
