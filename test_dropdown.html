@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Dropdown</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .dropdown-container { position: relative; margin: 20px 0; }
+        .dropdown-input { 
+            width: 300px; 
+            padding: 10px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px;
+            background: white;
+        }
+        .dropdown-menu { 
+            display: none; 
+            position: absolute; 
+            top: 100%; 
+            left: 0; 
+            width: 100%; 
+            background: white; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            max-height: 200px; 
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        .dropdown-menu.show { display: block; }
+        .dropdown-option { 
+            padding: 10px; 
+            cursor: pointer; 
+            border-bottom: 1px solid #eee;
+        }
+        .dropdown-option:hover { background: #f5f5f5; }
+        .option-code { font-weight: bold; color: #059665; }
+        .option-description { color: #666; font-size: 0.9em; }
+        .test-info { 
+            background: #f0f0f0; 
+            padding: 15px; 
+            border-radius: 4px; 
+            margin: 20px 0;
+        }
+        .test-btn { 
+            background: #059665; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        .test-btn:hover { background: #047857; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Dropdown Funksjonalitet</h1>
+    
+    <div class="test-info">
+        <h3>Test Instruksjoner:</h3>
+        <ol>
+            <li>Klikk på dropdown-feltet</li>
+            <li>Velg en NACE-kode</li>
+            <li>Klikk "Test Verdi" for å se hva som er satt</li>
+            <li>Klikk "Test API" for å teste søket</li>
+        </ol>
+    </div>
+
+    <div class="dropdown-container">
+        <label for="bransjekode">NACE-kode (bransje):</label>
+        <input type="text" id="bransjekode" name="bransjekode" value="70.220" placeholder="Velg eller søk etter bransje" class="dropdown-input" readonly>
+        <div class="dropdown-menu" id="dropdownMenu">
+            <div class="dropdown-options" id="dropdownOptions">
+                <div class="dropdown-option" data-value="70.220">
+                    <span class="option-code">70.220</span>
+                    <span class="option-description">Konsulentvirksomhet innen forretningsadministrasjon</span>
+                </div>
+                <div class="dropdown-option" data-value="69.200">
+                    <span class="option-code">69.200</span>
+                    <span class="option-description">Regnskapsførere, revisjon og rådgivning</span>
+                </div>
+                <div class="dropdown-option" data-value="69.100">
+                    <span class="option-code">69.100</span>
+                    <span class="option-description">Advokatvirksomhet og rettshjelp</span>
+                </div>
+                <div class="dropdown-option" data-value="62.010">
+                    <span class="option-code">62.010</span>
+                    <span class="option-description">Programvareutvikling</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <button class="test-btn" onclick="testValue()">Test Verdi</button>
+        <button class="test-btn" onclick="testAPI()">Test API</button>
+        <button class="test-btn" onclick="resetValue()">Reset til 70.220</button>
+    </div>
+
+    <div id="testResults" style="margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 4px; display: none;">
+        <h3>Test Resultater:</h3>
+        <div id="testOutput"></div>
+    </div>
+
+    <script>
+        // Initialize dropdown functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDropdown();
+        });
+
+        function initializeDropdown() {
+            const dropdownInput = document.getElementById('bransjekode');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+
+            // Toggle dropdown on input click
+            dropdownInput.addEventListener('click', function(e) {
+                e.preventDefault();
+                dropdownMenu.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!dropdownInput.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+
+            // Handle option selection
+            const options = dropdownMenu.querySelectorAll('.dropdown-option');
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    const value = this.getAttribute('data-value');
+                    const code = this.querySelector('.option-code').textContent;
+                    const description = this.querySelector('.option-description').textContent;
+                    
+                    console.log('🎯 Valgt NACE-kode:', value, code, description);
+                    
+                    dropdownInput.value = value;
+                    dropdownMenu.classList.remove('show');
+                    
+                    console.log('✅ Dropdown input verdi satt til:', dropdownInput.value);
+                });
+            });
+        }
+
+        function testValue() {
+            const bransjekode = document.getElementById('bransjekode');
+            const testResults = document.getElementById('testResults');
+            const testOutput = document.getElementById('testOutput');
+            
+            testOutput.innerHTML = `
+                <p><strong>Input verdi:</strong> "${bransjekode.value}"</p>
+                <p><strong>Input type:</strong> ${typeof bransjekode.value}</p>
+                <p><strong>Input lengde:</strong> ${bransjekode.value.length}</p>
+                <p><strong>Er tom:</strong> ${bransjekode.value === '' ? 'Ja' : 'Nei'}</p>
+                <p><strong>Er undefined:</strong> ${bransjekode.value === undefined ? 'Ja' : 'Nei'}</p>
+                <p><strong>Er null:</strong> ${bransjekode.value === null ? 'Ja' : 'Nei'}</p>
+            `;
+            
+            testResults.style.display = 'block';
+        }
+
+        async function testAPI() {
+            const bransjekode = document.getElementById('bransjekode').value;
+            const testResults = document.getElementById('testResults');
+            const testOutput = document.getElementById('testOutput');
+            
+            testOutput.innerHTML = '<p>🔍 Tester API...</p>';
+            testResults.style.display = 'block';
+            
+            try {
+                const formData = {
+                    bransjekode: bransjekode,
+                    min_ansatte: 0
+                };
+                
+                console.log('📤 Sender data til API:', formData);
+                
+                const response = await fetch('/api/sok', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                console.log('📡 API response status:', response.status);
+                
+                const data = await response.json();
+                console.log('📊 API response data:', data);
+                
+                if (data.success) {
+                    testOutput.innerHTML = `
+                        <p>✅ API fungerer!</p>
+                        <p><strong>Antall bedrifter:</strong> ${data.antall}</p>
+                        <p><strong>Første bedrift:</strong> ${data.selskaper[0]?.navn || 'N/A'}</p>
+                        <p><strong>Response data:</strong></p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    testOutput.innerHTML = `
+                        <p>❌ API feil:</p>
+                        <p><strong>Error:</strong> ${data.error || 'Ukjent feil'}</p>
+                    `;
+                }
+                
+            } catch (err) {
+                console.error('💥 Feil under API test:', err);
+                testOutput.innerHTML = `
+                    <p>💥 Feil under API test:</p>
+                    <p><strong>Error:</strong> ${err.message}</p>
+                `;
+            }
+        }
+
+        function resetValue() {
+            const bransjekode = document.getElementById('bransjekode');
+            bransjekode.value = '70.220';
+            console.log('🔄 Reset dropdown til:', bransjekode.value);
+        }
+    </script>
+</body>
+</html>
