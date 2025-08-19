@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bedriftssøk - Brønnøysundregisteret</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -11,90 +14,168 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --success-dark: #059669;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --text-light: #9ca3af;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --border: #e5e7eb;
+            --border-light: #f3f4f6;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: #333;
+            color: var(--text-primary);
+            line-height: 1.6;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 2rem 1rem;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 3rem;
             color: white;
         }
 
         .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            font-weight: 300;
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            margin-bottom: 1rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
+            font-size: 1.125rem;
+            opacity: 0.95;
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .search-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-2xl);
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 1.5rem;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 0.5rem;
             font-weight: 600;
-            color: #555;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .form-group input {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            background: var(--bg-primary);
+            color: var(--text-primary);
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-light);
         }
 
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 1.5rem;
         }
 
         .search-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
             border: none;
-            padding: 15px 40px;
-            border-radius: 10px;
-            font-size: 16px;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
             font-weight: 600;
+            font-family: inherit;
             cursor: pointer;
-            transition: transform 0.2s ease;
+            transition: all 0.2s ease;
             width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .search-btn:hover::before {
+            left: 100%;
         }
 
         .search-btn:hover {
             transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .search-btn:active {
+            transform: translateY(0);
         }
 
         .search-btn:disabled {
@@ -104,85 +185,110 @@
         }
 
         .results-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-2xl);
             display: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .results-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--success), var(--primary));
         }
 
         .results-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 2rem;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 1rem;
         }
 
         .results-count {
-            font-size: 1.2rem;
-            color: #666;
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            font-weight: 500;
         }
 
         .export-btn {
-            background: #28a745;
+            background: var(--success);
             color: white;
             border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
             font-weight: 600;
+            font-family: inherit;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .export-btn:hover {
-            background: #218838;
+            background: var(--success-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
         }
 
         .table-container {
             overflow-x: auto;
-            border-radius: 10px;
-            border: 1px solid #e1e5e9;
+            border-radius: 16px;
+            border: 1px solid var(--border-light);
+            background: var(--bg-secondary);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            font-size: 0.875rem;
         }
 
         th, td {
-            padding: 15px;
+            padding: 1rem 1.25rem;
             text-align: left;
-            border-bottom: 1px solid #e1e5e9;
+            border-bottom: 1px solid var(--border-light);
         }
 
         th {
-            background: #f8f9fa;
+            background: var(--bg-tertiary);
             font-weight: 600;
-            color: #555;
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         tr:hover {
-            background: #f8f9fa;
+            background: rgba(99, 102, 241, 0.02);
         }
 
         .loading {
             text-align: center;
-            padding: 40px;
-            color: #666;
+            padding: 3rem 2rem;
+            color: var(--text-secondary);
         }
 
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border: 3px solid var(--border-light);
+            border-top: 3px solid var(--primary);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            margin: 0 auto 1.5rem;
         }
 
         @keyframes spin {
@@ -191,21 +297,70 @@
         }
 
         .error {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #f5c6cb;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            font-weight: 500;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid var(--border-light);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1rem;
+            opacity: 0.5;
         }
 
         @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
             .form-row {
                 grid-template-columns: 1fr;
             }
             
             .search-card, .results-card {
-                padding: 25px;
+                padding: 1.5rem;
+                border-radius: 20px;
             }
             
             .header h1 {
@@ -216,6 +371,29 @@
                 flex-direction: column;
                 align-items: stretch;
             }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Smooth animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -223,23 +401,23 @@
     <div class="container">
         <div class="header">
             <h1>🔍 Bedriftssøk</h1>
-            <p>Søk etter bedrifter i Brønnøysundregisteret basert på bransje og størrelse</p>
+            <p>Oppdag og analyser bedrifter i Brønnøysundregisteret med moderne søkefunksjonalitet</p>
         </div>
 
-        <div class="search-card">
+        <div class="search-card fade-in">
             <form id="searchForm">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="bransjekode">NACE-kode (bransje):</label>
-                        <input type="text" id="bransjekode" name="bransjekode" value="70.220" placeholder="f.eks. 70.220">
+                        <label for="bransjekode">NACE-kode (bransje)</label>
+                        <input type="text" id="bransjekode" name="bransjekode" value="70.220" placeholder="f.eks. 70.220 for konsulentvirksomhet">
                     </div>
                     <div class="form-group">
-                        <label for="min_ansatte">Minimum antall ansatte:</label>
+                        <label for="min_ansatte">Minimum antall ansatte</label>
                         <input type="number" id="min_ansatte" name="min_ansatte" value="100" min="1" placeholder="f.eks. 100">
                     </div>
                 </div>
                 <button type="submit" class="search-btn" id="searchBtn">
-                    🔍 Søk etter bedrifter
+                    🔍 Start søk
                 </button>
             </form>
         </div>
@@ -259,6 +437,8 @@
             
             <div id="error" class="error" style="display: none;"></div>
             
+            <div id="statsGrid" class="stats-grid" style="display: none;"></div>
+            
             <div id="resultsTable" style="display: none;">
                 <div class="table-container">
                     <table>
@@ -276,6 +456,14 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                </svg>
+                <h3>Ingen resultater funnet</h3>
+                <p>Prøv å endre søkekriteriene eller sjekk at NACE-koden er korrekt</p>
             </div>
         </div>
     </div>
@@ -325,7 +513,7 @@
                 showError('Kunne ikke koble til serveren');
             } finally {
                 searchBtn.disabled = false;
-                searchBtn.textContent = '🔍 Søk etter bedrifter';
+                searchBtn.textContent = '🔍 Start søk';
                 loading.style.display = 'none';
             }
         });
@@ -335,26 +523,70 @@
             const resultsTable = document.getElementById('resultsTable');
             const resultsBody = document.getElementById('resultsBody');
             const exportBtn = document.getElementById('exportBtn');
+            const statsGrid = document.getElementById('statsGrid');
+            const emptyState = document.getElementById('emptyState');
             
-            resultsCount.textContent = `Fant ${antall} bedrifter`;
-            exportBtn.style.display = 'block';
+            resultsCount.textContent = `${antall} bedrifter funnet`;
+            exportBtn.style.display = 'flex';
+            
+            if (antall === 0) {
+                emptyState.style.display = 'block';
+                resultsTable.style.display = 'none';
+                statsGrid.style.display = 'none';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            resultsTable.style.display = 'block';
+            statsGrid.style.display = 'block';
+            
+            // Vis statistikk
+            displayStats(selskaper);
             
             resultsBody.innerHTML = '';
             
-            selskaper.forEach(selskap => {
+            selskaper.forEach((selskap, index) => {
                 const row = document.createElement('tr');
+                row.className = 'slide-up';
+                row.style.animationDelay = `${index * 0.05}s`;
                 row.innerHTML = `
-                    <td>${selskap.organisasjonsnummer || '-'}</td>
+                    <td><code>${selskap.organisasjonsnummer || '-'}</code></td>
                     <td><strong>${selskap.navn || '-'}</strong></td>
                     <td>${selskap.poststed || '-'}</td>
-                    <td>${selskap.antall_ansatte || '-'}</td>
-                    <td>${selskap.nace_kode || '-'}</td>
+                    <td><span class="stat-number">${selskap.antall_ansatte || '-'}</span></td>
+                    <td><code>${selskap.nace_kode || '-'}</code></td>
                     <td>${selskap.adresse || '-'}</td>
                 `;
                 resultsBody.appendChild(row);
             });
+        }
+
+        function displayStats(selskaper) {
+            const statsGrid = document.getElementById('statsGrid');
             
-            resultsTable.style.display = 'block';
+            // Beregn statistikk
+            const totalEmployees = selskaper.reduce((sum, s) => sum + (parseInt(s.antall_ansatte) || 0), 0);
+            const avgEmployees = totalEmployees / selskaper.length || 0;
+            const cities = [...new Set(selskaper.map(s => s.poststed).filter(Boolean))];
+            
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${selskaper.length}</div>
+                    <div class="stat-label">Bedrifter</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${Math.round(avgEmployees)}</div>
+                    <div class="stat-label">Gjennomsnitt ansatte</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${cities.length}</div>
+                    <div class="stat-label">Poststeder</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalEmployees.toLocaleString()}</div>
+                    <div class="stat-label">Totalt ansatte</div>
+                </div>
+            `;
         }
 
         function showError(message) {
@@ -366,7 +598,7 @@
         document.getElementById('exportBtn').addEventListener('click', async function() {
             const exportBtn = document.getElementById('exportBtn');
             exportBtn.disabled = true;
-            exportBtn.textContent = '📊 Eksporterer...';
+            exportBtn.innerHTML = '📊 Eksporterer...';
             
             try {
                 const response = await fetch('/api/eksporter', {
@@ -395,8 +627,21 @@
                 showError('Kunne ikke eksportere filen');
             } finally {
                 exportBtn.disabled = false;
-                exportBtn.textContent = '📊 Eksporter til Excel';
+                exportBtn.innerHTML = '📊 Eksporter til Excel';
             }
+        });
+
+        // Smooth scroll to results
+        function scrollToResults() {
+            const resultsCard = document.getElementById('resultsCard');
+            if (resultsCard.style.display !== 'none') {
+                resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Add smooth scroll after search
+        document.getElementById('searchForm').addEventListener('submit', function() {
+            setTimeout(scrollToResults, 100);
         });
     </script>
 </body>
