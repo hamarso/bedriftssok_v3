@@ -4,11 +4,39 @@ import requests
 from openpyxl import Workbook
 import io
 import os
+import re
 
 app = Flask(__name__)
 CORS(app)
 
-def hente_selskaper_med_kriterier(bransjekode, min_ansatte, bedriftsnavn=None, poststed=None, organisasjonsform=None, registreringsdato=None):
+def parse_postnumre(postnumre_string):
+    """Parser postnumre fra string til liste med individuelle postnumre"""
+    if not postnumre_string or postnumre_string.strip() == '':
+        return []
+    
+    postnumre = []
+    # Del opp på komma
+    for part in postnumre_string.split(','):
+        part = part.strip()
+        if '-' in part:
+            # Håndter serier som "0001-0010"
+            try:
+                start, end = part.split('-')
+                start_num = int(start.strip())
+                end_num = int(end.strip())
+                if start_num <= end_num:
+                    for num in range(start_num, end_num + 1):
+                        postnumre.append(f"{num:04d}")
+            except ValueError:
+                # Hvis parsing feiler, legg til som vanlig
+                postnumre.append(part)
+        else:
+            # Enkelt postnummer
+            postnumre.append(part)
+    
+    return postnumre
+
+def hente_selskaper_med_kriterier(bransjekode, min_ansatte, bedriftsnavn=None, poststed=None, organisasjonsform=None, registreringsdato=None, postnumre=None):
     """Henter selskaper basert på søkekriterier"""
     url = "https://data.brreg.no/enhetsregisteret/api/enheter"
     selskaper = []
@@ -74,15 +102,15 @@ def hente_selskaper_med_kriterier(bransjekode, min_ansatte, bedriftsnavn=None, p
     except Exception as e:
         print(f'💥 Feil under henting av data: {str(e)}')
     
-    # Filtrer resultater basert på bedriftsnavn og poststed (client-side filtering)
-    if bedriftsnavn or poststed:
-        selskaper = filtrer_selskaper(selskaper, bedriftsnavn, poststed)
+    # Filtrer resultater basert på bedriftsnavn, poststed og postnumre
+    if bedriftsnavn or poststed or postnumre:
+        selskaper = filtrer_selskaper(selskaper, bedriftsnavn, poststed, postnumre)
     
     print(f"🎯 Totalt antall bedrifter funnet etter filtrering: {len(selskaper)}")
     return selskaper
 
-def filtrer_selskaper(selskaper, bedriftsnavn=None, poststed=None):
-    """Filtrerer selskaper basert på navn og poststed"""
+def filtrer_selskaper(selskaper, bedriftsnavn=None, poststed=None, postnumre=None):
+    """Filtrerer selskaper basert på navn, poststed og postnumre"""
     filtrerte = selskaper
     
     if bedriftsnavn:
@@ -94,6 +122,14 @@ def filtrer_selskaper(selskaper, bedriftsnavn=None, poststed=None):
         poststed_lower = poststed.lower()
         filtrerte = [s for s in filtrerte if s.get('forretningsadresse', {}).get('poststed', '').lower().find(poststed_lower) != -1]
         print(f"🔍 Filtrert på poststed '{poststed}': {len(filtrerte)} bedrifter igjen")
+    
+    if postnumre:
+        # Filtrer på postnumre
+        filtrerte = [s for s in filtrerte if any(
+            re.search(rf'\b{postnummer}\b', str(s.get('forretningsadresse', {}).get('adresse', '')))
+            for postnummer in postnumre
+        )]
+        print(f"🔍 Filtrert på postnumre {postnumre}: {len(filtrerte)} bedrifter igjen")
     
     return filtrerte
 
@@ -113,6 +149,8 @@ def sok_selskaper():
         poststed = data.get('poststed', '')
         organisasjonsform = data.get('organisasjonsform', '')
         registreringsdato = data.get('registreringsdato', '')
+        postnumre_string = data.get('postnumre', '')
+        postnumre = parse_postnumre(postnumre_string)
         page = int(data.get('page', 0))  # Legg til paginering
         page_size = 100  # 100 resultater per side
         export_all = data.get('export_all', False)  # Flag for å få alle resultater
@@ -124,6 +162,7 @@ def sok_selskaper():
         print(f"   - Poststed: {poststed}")
         print(f"   - Organisasjonsform: {organisasjonsform}")
         print(f"   - Registreringsdato: {registreringsdato}")
+        print(f"   - Postnumre: {postnumre}")
         print(f"   - Side: {page}")
         print(f"   - Export all: {export_all}")
         
@@ -133,7 +172,8 @@ def sok_selskaper():
             bedriftsnavn if bedriftsnavn else None,
             poststed if poststed else None,
             organisasjonsform if organisasjonsform else None,
-            registreringsdato if registreringsdato else None
+            registreringsdato if registreringsdato else None,
+            postnumre if postnumre else None
         )
         
         print(f"📊 Rå data mottatt: {len(selskaper)} bedrifter")
