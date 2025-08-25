@@ -45,8 +45,15 @@ def hente_selskaper_med_kriterier(bransjekode, min_ansatte, max_ansatte, bedrift
         'size': 1000
     }
     
+    # Hvis vi har postnumre men ingen NACE-kode, bruk en generell søk
+    # Brønnøysundregisteret API krever minst én parameter
+    if postnumre and (not bransjekode or not bransjekode.strip()):
+        # Bruk en vanlig bransje som gir mange resultater for å finne alle selskaper
+        params['naeringskode'] = '70.220'  # Konsulentvirksomhet innen forretningsadministrasjon
+        print("🔍 Ingen NACE-kode spesifisert, men postnumre gitt. Bruker generell søk for å finne alle selskaper.")
+    
     # Legg til NACE-kode hvis spesifisert
-    if bransjekode and bransjekode.strip():
+    elif bransjekode and bransjekode.strip():
         params['naeringskode'] = bransjekode
     
     # Legg til antall ansatte hvis spesifisert

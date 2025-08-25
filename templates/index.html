@@ -635,13 +635,14 @@
         <div class="search-card fade-in">
             <form id="searchForm">
                 <div class="form-row">
-                    <div class="form-group">
-                        <label for="bransjekode">NACE-kode (bransje)</label>
-                        <input type="text" id="bransjekode" name="bransjekode" placeholder="f.eks. 70.220, 69.201, 62.010">
-                        <div style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
-                            💡 <a href="https://www.ssb.no/klass/klassifikasjoner/6" target="_blank" style="color: var(--primary); text-decoration: underline;">Finn NACE-koder hos SSB</a> (åpner i ny fane)
-                        </div>
-                    </div>
+                                         <div class="form-group">
+                         <label for="bransjekode">NACE-kode (bransje)</label>
+                         <input type="text" id="bransjekode" name="bransjekode" placeholder="f.eks. 70.220, 69.201, 62.010">
+                         <div style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
+                             💡 <a href="https://www.ssb.no/klass/klassifikasjoner/6" target="_blank" style="color: var(--primary); text-decoration: underline;">Finn NACE-koder hos SSB</a> (åpner i ny fane)
+                             <br>💡 <strong>Tips:</strong> Hvis du kun søker på postnumre uten NACE-kode, får du alle selskaper innenfor det postnummeret
+                         </div>
+                     </div>
                     <div class="form-group">
                         <label for="min_ansatte">Minimum antall ansatte</label>
                         <input type="number" id="min_ansatte" name="min_ansatte" min="0" placeholder="f.eks. 0, 10, 100">
@@ -661,13 +662,14 @@
                         <label for="poststed">Poststed</label>
                         <input type="text" id="poststed" name="poststed" placeholder="f.eks. 'Oslo', 'Bergen', 'Trondheim'">
                     </div>
-                    <div class="form-group">
-                        <label for="postnumre">Postnumre (komma-separert eller serier)</label>
-                        <input type="text" id="postnumre" name="postnumre" placeholder="f.eks. '0001-0010, 0201, 0501-0510'">
-                        <div style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
-                            💡 Du kan skrive enkeltpostnumre (0001) eller serier (0001-0010) adskilt med komma
-                        </div>
-                    </div>
+                                         <div class="form-group">
+                         <label for="postnumre">Postnumre (komma-separert eller serier)</label>
+                         <input type="text" id="postnumre" name="postnumre" placeholder="f.eks. '0001-0010, 0201, 0501-0510'">
+                         <div style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
+                             💡 Du kan skrive enkeltpostnumre (0001) eller serier (0001-0010) adskilt med komma
+                             <br>💡 <strong>Funksjon:</strong> Hvis du kun fyller ut postnumre, får du alle selskaper innenfor det området
+                         </div>
+                     </div>
                     <div class="form-group">
                         <label for="organisasjonsform">Organisasjonsform</label>
                         <select id="organisasjonsform" name="organisasjonsform">
