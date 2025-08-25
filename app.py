@@ -43,21 +43,30 @@ def hente_selskaper_med_kriterier(bransjekode, min_ansatte, bedriftsnavn=None, p
     
     # Oppdaterte parametere for Brønnøysundregisteret API
     params = {
-        'naeringskode': bransjekode,
         'size': 1000
     }
+    
+    # Legg til NACE-kode kun hvis spesifisert
+    if bransjekode:
+        params['naeringskode'] = bransjekode
+        print(f"🔍 Bruker NACE-kode: {bransjekode}")
+    else:
+        print("🔍 Ingen NACE-kode spesifisert, søker på alle bransjer")
     
     # Legg til antall ansatte parameter kun hvis det er større enn 0
     if min_ansatte > 0:
         params['fraAntallAnsatte'] = min_ansatte
+        print(f"🔍 Bruker minimum antall ansatte: {min_ansatte}")
     
     # Legg til organisasjonsform hvis spesifisert
     if organisasjonsform:
         params['organisasjonsform'] = organisasjonsform
+        print(f"🔍 Bruker organisasjonsform: {organisasjonsform}")
     
     # Legg til registreringsdato hvis spesifisert
     if registreringsdato:
         params['fraRegistreringsdatoEnhetsregisteret'] = registreringsdato
+        print(f"🔍 Bruker registreringsdato: {registreringsdato}")
     
     print(f"🔍 Søker med parametere: {params}")
     
@@ -221,10 +230,11 @@ def sok_selskaper():
         
         # Sjekk om bransjekode er påkrevd
         if not bransjekode or bransjekode.strip() == '':
-            return jsonify({
-                'success': False,
-                'error': 'NACE-kode (bransje) er påkrevd for søk'
-            }), 400
+            # Hvis ingen NACE-kode er gitt, søk uten NACE-kode (alle bransjer)
+            print("⚠️ Ingen NACE-kode gitt, søker på alle bransjer")
+            bransjekode = None
+        else:
+            print(f"✅ Søker på NACE-kode: {bransjekode}")
         
         selskaper = hente_selskaper_med_kriterier(
             bransjekode, 
