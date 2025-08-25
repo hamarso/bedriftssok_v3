@@ -45,12 +45,59 @@ def hente_selskaper_med_kriterier(bransjekode, min_ansatte, max_ansatte, bedrift
         'size': 1000
     }
     
-    # Hvis vi har postnumre men ingen NACE-kode, bruk en generell søk
-    # Brønnøysundregisteret API krever minst én parameter
+    # Hvis vi har postnumre men ingen NACE-kode, bruk en generell søk for alle bransjer
+    # Brønnøysundregisteret API krever minst én parameter, så vi bruker en som ikke begrenser bransjen
     if postnumre and (not bransjekode or not bransjekode.strip()):
-        # Bruk en vanlig bransje som gir mange resultater for å finne alle selskaper
-        params['naeringskode'] = '70.220'  # Konsulentvirksomhet innen forretningsadministrasjon
-        print("🔍 Ingen NACE-kode spesifisert, men postnumre gitt. Bruker generell søk for å finne alle selskaper.")
+        print("🔍 Ingen NACE-kode spesifisert, men postnumre gitt. Henter data fra alle bransjer.")
+        
+        # Bruk en generell parameter som ikke begrenser bransjen
+        # Vi kan bruke 'size' for å få maksimalt antall resultater
+        params['size'] = 1000
+        
+        try:
+            # Hent data uten NACE-kode begrensning
+            response = requests.get(url, params=params, timeout=30)
+            if response.status_code == 200:
+                data = response.json()
+                if '_embedded' in data and 'enheter' in data['_embedded']:
+                    selskaper.extend(data['_embedded']['enheter'])
+                    print(f"✅ Fant {len(data['_embedded']['enheter'])} bedrifter i første batch")
+                    
+                    # Håndter paginering for å få alle resultater
+                    page = 0
+                    while 'next' in data.get('_links', {}):
+                        page += 1
+                        params['page'] = page
+                        
+                        print(f"📄 Henter side {page + 1}...")
+                        response = requests.get(url, params=params, timeout=30)
+                        
+                        if response.status_code == 200:
+                            data = response.json()
+                            if '_embedded' in data and 'enheter' in data['_embedded']:
+                                selskaper.extend(data['_embedded']['enheter'])
+                                print(f"✅ Fant {len(data['_embedded']['enheter'])} bedrifter på side {page + 1}")
+                            else:
+                                break
+                        else:
+                            print(f"❌ Feil på side {page + 1}: {response.status_code}")
+                            break
+                else:
+                    print(f"⚠️ Ingen '_embedded' eller 'enheter' i API response")
+            else:
+                print(f'❌ API feil: {response.status_code}')
+                
+        except Exception as e:
+            print(f'💥 Feil under henting av data: {str(e)}')
+        
+        print(f"🎯 Totalt antall bedrifter funnet fra alle bransjer: {len(selskaper)}")
+        
+        # Filtrer resultater basert på søkekriterier
+        if bedriftsnavn or poststed or postnumre or etablert_etter or momsregistrert is not None:
+            selskaper = filtrer_selskaper(selskaper, bedriftsnavn, poststed, postnumre, etablert_etter, momsregistrert)
+        
+        print(f"🎯 Totalt antall bedrifter funnet etter filtrering: {len(selskaper)}")
+        return selskaper
     
     # Legg til NACE-kode hvis spesifisert
     elif bransjekode and bransjekode.strip():
