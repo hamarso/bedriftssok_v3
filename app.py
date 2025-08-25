@@ -51,13 +51,14 @@ def hente_selskaper_med_kriterier(bransjekode, min_ansatte, max_ansatte, bedrift
         print("🔍 Ingen NACE-kode spesifisert, men postnumre gitt. Henter data fra alle bransjer.")
         
         # Bruk en generell parameter som ikke begrenser bransjen
-        # Vi kan bruke 'registrertIMvaregisteret' for å få alle selskaper som er registrert i MVA-registeret
-        # Dette gir oss en stor del av alle aktive selskaper uten å begrense på bransje
-        params['registrertIMvaregisteret'] = 'true'
+        # Vi kan bruke 'size' for å få maksimalt antall resultater per side
+        # Dette gir oss alle tilgjengelige selskaper uten å begrense på bransje
+        # Merk: Brønnøysundregisteret API krever minst én parameter, så vi bruker size=1000
         params['size'] = 1000
         
         try:
-            # Hent data med generell parameter
+            # Hent data uten begrensninger på bransje
+            # Vi prøver først uten ekstra parametere, bare med size
             response = requests.get(url, params=params, timeout=30)
             if response.status_code == 200:
                 data = response.json()
@@ -91,6 +92,22 @@ def hente_selskaper_med_kriterier(bransjekode, min_ansatte, max_ansatte, bedrift
                 
         except Exception as e:
             print(f'💥 Feil under henting av data: {str(e)}')
+            
+            # Hvis den generelle søket feiler, prøv med vanlige NACE-koder
+            print("🔄 Prøver fallback med vanlige NACE-koder...")
+            vanlige_bransjer = ['70.220', '69.201', '62.010', '47.110', '56.100', '85.200', '86.100', '87.100', '88.100']
+            
+            for bransje in vanlige_bransjer:
+                try:
+                    temp_params = {'naeringskode': bransje, 'size': 1000}
+                    response = requests.get(url, params=temp_params, timeout=30)
+                    if response.status_code == 200:
+                        data = response.json()
+                        if '_embedded' in data and 'enheter' in data['_embedded']:
+                            selskaper.extend(data['_embedded']['enheter'])
+                            print(f"✅ Fant {len(data['_embedded']['enheter'])} bedrifter for bransje {bransje}")
+                except Exception as e2:
+                    print(f"❌ Feil for bransje {bransje}: {str(e2)}")
         
         print(f"🎯 Totalt antall bedrifter funnet fra alle bransjer: {len(selskaper)}")
         
