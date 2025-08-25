@@ -124,11 +124,40 @@ def filtrer_selskaper(selskaper, bedriftsnavn=None, poststed=None, postnumre=Non
         print(f"🔍 Filtrert på poststed '{poststed}': {len(filtrerte)} bedrifter igjen")
     
     if postnumre:
-        # Filtrer på postnumre
-        filtrerte = [s for s in filtrerte if any(
-            re.search(rf'\b{postnummer}\b', str(s.get('forretningsadresse', {}).get('adresse', '')))
-            for postnummer in postnumre
-        )]
+        print(f"🔍 Filtrerer på postnumre: {postnumre}")
+        print(f"🔍 Antall bedrifter før postnummer-filtrering: {len(filtrerte)}")
+        
+        # Log første noen bedrifter for å se adressestrukturen
+        for i, selskap in enumerate(filtrerte[:3]):
+            adresse = selskap.get('forretningsadresse', {})
+            print(f"   Bedrift {i+1}: {selskap.get('navn', 'N/A')}")
+            print(f"     Adresse: {adresse.get('adresse', 'N/A')}")
+            print(f"     Postnummer: {adresse.get('postnummer', 'N/A')}")
+            print(f"     Poststed: {adresse.get('poststed', 'N/A')}")
+        
+        # Filtrer på postnumre - sjekk både adresse og postnummer-felt
+        postnummer_filtrerte = []
+        for s in filtrerte:
+            adresse = s.get('forretningsadresse', {})
+            adresse_tekst = str(adresse.get('adresse', ''))
+            postnummer_felt = str(adresse.get('postnummer', ''))
+            
+            # Sjekk om noen av postnumrene matcher
+            matcher = False
+            for postnummer in postnumre:
+                # Sjekk i adresse-tekst
+                if re.search(rf'\b{postnummer}\b', adresse_tekst):
+                    matcher = True
+                    break
+                # Sjekk i postnummer-felt
+                if re.search(rf'\b{postnummer}\b', postnummer_felt):
+                    matcher = True
+                    break
+            
+            if matcher:
+                postnummer_filtrerte.append(s)
+        
+        filtrerte = postnummer_filtrerte
         print(f"🔍 Filtrert på postnumre {postnumre}: {len(filtrerte)} bedrifter igjen")
     
     return filtrerte

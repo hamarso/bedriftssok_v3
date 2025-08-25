@@ -1256,7 +1256,7 @@
             }
         }
 
-        async function fetchAllResults(bransjekode, min_ansatte, max_ansatte, bedriftsnavn, poststed, organisasjonsform, registreringsdato, etablert_etter, momsregistrert) {
+        async function fetchAllResults(bransjekode, min_ansatte, max_ansatte, bedriftsnavn, poststed, postnumre, organisasjonsform, registreringsdato, etablert_etter, momsregistrert) {
             try {
                 const response = await fetch('/api/sok', {
                     method: 'POST',
@@ -1267,6 +1267,7 @@
                         max_ansatte: max_ansatte,
                         bedriftsnavn: bedriftsnavn,
                         poststed: poststed,
+                        postnumre: postnumre,
                         organisasjonsform: organisasjonsform,
                         registreringsdato: registreringsdato,
                         etablert_etter: etablert_etter,
@@ -1306,12 +1307,13 @@
                 const max_ansatte = parseInt(document.getElementById('max_ansatte').value) || 0;
                 const bedriftsnavn = document.getElementById('bedriftsnavn').value;
                 const poststed = document.getElementById('poststed').value;
+                const postnumre = document.getElementById('postnumre').value;
                 const organisasjonsform = document.getElementById('organisasjonsform').value;
                 const registreringsdato = document.getElementById('registreringsdato').value;
                 const etablert_etter = parseInt(document.getElementById('etablert_etter').value) || 0;
                 const momsregistrert = document.getElementById('momsregistrert').value;
                 
-                console.log('📤 Sender søk:', { bransjekode, min_ansatte, max_ansatte, bedriftsnavn, poststed, organisasjonsform, registreringsdato, etablert_etter, momsregistrert });
+                console.log('📤 Sender søk:', { bransjekode, min_ansatte, max_ansatte, bedriftsnavn, poststed, postnumre, organisasjonsform, registreringsdato, etablert_etter, momsregistrert });
                 
                 const response = await fetch('/api/sok', {
                     method: 'POST',
@@ -1324,6 +1326,7 @@
                         max_ansatte: max_ansatte,
                         bedriftsnavn: bedriftsnavn,
                         poststed: poststed,
+                        postnumre: postnumre,
                         organisasjonsform: organisasjonsform,
                         registreringsdato: registreringsdato,
                         etablert_etter: etablert_etter,
@@ -1342,7 +1345,7 @@
                         // Lagre alle resultater for paginering
                         if (data.page === 0) {
                             // Første side - hent alle resultater for paginering
-                            fetchAllResults(bransjekode, min_ansatte, max_ansatte, bedriftsnavn, poststed, organisasjonsform, registreringsdato, etablert_etter, momsregistrert);
+                            fetchAllResults(bransjekode, min_ansatte, max_ansatte, bedriftsnavn, poststed, postnumre, organisasjonsform, registreringsdato, etablert_etter, momsregistrert);
                         } else {
                             // Andre sider - vis resultater
                             currentResults = data.selskaper;
