@@ -56,6 +56,8 @@ def hente_selskaper_med_kriterier(bransjekode, min_ansatte, max_ansatte, bedrift
         # Merk: Brønnøysundregisteret API krever minst én parameter, så vi bruker size=1000
         params['size'] = 1000
         
+        # Prøv å hente data uten begrensninger på bransje
+        # Hvis dette ikke fungerer, bruk fallback med vanlige NACE-koder
         try:
             # Hent data uten begrensninger på bransje
             # Vi prøver først uten ekstra parametere, bare med size
@@ -253,8 +255,6 @@ def sok_selskaper():
         registreringsdato = data.get('registreringsdato', '')
         etablert_etter = int(data.get('etablert_etter', 0)) if data.get('etablert_etter') else None
         momsregistrert = data.get('momsregistrert', '')
-        page = int(data.get('page', 0))
-        page_size = 100
         export_all = data.get('export_all', False)
         
         # Parse postnumre
@@ -321,29 +321,11 @@ def sok_selskaper():
                 'organisasjonsform': selskap.get('organisasjonsform', {}).get('kode', '')
             })
         
-        # Hvis export_all er satt, returner alle resultater
-        if export_all:
-            return jsonify({
-                'success': True,
-                'selskaper': formaterte_selskaper,
-                'antall': len(formaterte_selskaper)
-            })
-        
-        # Implementer paginering
-        total_count = len(formaterte_selskaper)
-        start_index = page * page_size
-        end_index = start_index + page_size
-        paginerte_selskaper = formaterte_selskaper[start_index:end_index]
-        
+        # Returner alle resultater for statistikk og eksport
         return jsonify({
             'success': True,
-            'selskaper': paginerte_selskaper,
-            'antall': total_count,
-            'page': page,
-            'page_size': page_size,
-            'total_pages': (total_count + page_size - 1) // page_size,
-            'has_next': end_index < total_count,
-            'has_previous': page > 0
+            'selskaper': formaterte_selskaper,
+            'antall': len(formaterte_selskaper)
         })
     
     except Exception as e:
