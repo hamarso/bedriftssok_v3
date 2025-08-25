@@ -45,7 +45,7 @@ def hente_selskaper_med_kriterier(bransjekode, min_ansatte, max_ansatte, bedrift
         'size': 1000
     }
     
-        # Bygg API-parametere basert på brukerens søkekriterier
+    # Bygg API-parametere basert på brukerens søkekriterier
     # Brønnøysundregisteret API krever minst én parameter, så vi legger til en generell hvis nødvendig
     
     # Legg til NACE-kode hvis spesifisert
@@ -60,11 +60,11 @@ def hente_selskaper_med_kriterier(bransjekode, min_ansatte, max_ansatte, bedrift
         params['tilAntallAnsatte'] = max_ansatte
     
     # Legg til organisasjonsform hvis spesifisert
-    if organisasjonsform:
+    if organisasjonsform and organisasjonsform.strip():
         params['organisasjonsform'] = organisasjonsform
     
     # Legg til registreringsdato hvis spesifisert
-    if registreringsdato:
+    if registreringsdato and registreringsdato.strip():
         params['fraRegistreringsdatoEnhetsregisteret'] = registreringsdato
     
     # Hvis ingen parametere er satt, legg til en generell parameter for å oppfylle API-kravet
@@ -111,28 +111,38 @@ def hente_selskaper_med_kriterier(bransjekode, min_ansatte, max_ansatte, bedrift
             
     except Exception as e:
         print(f'💥 Feil under henting av data: {str(e)}')
+        # Returner tom liste hvis API-kallet feiler
+        return []
     
     # Filtrer resultater basert på søkekriterier
     if bedriftsnavn or poststed or postnumre or etablert_etter or momsregistrert is not None:
         selskaper = filtrer_selskaper(selskaper, bedriftsnavn, poststed, postnumre, etablert_etter, momsregistrert)
     
+    print(f"🎯 Totalt antall bedrifter funnet: {len(selskaper)}")
+    return selskaper
+    
 
 
 def filtrer_selskaper(selskaper, bedriftsnavn=None, poststed=None, postnumre=None, etablert_etter=None, momsregistrert=None):
     """Filtrerer selskaper basert på søkekriterier"""
+    # Sjekk at selskaper ikke er None
+    if selskaper is None:
+        print("⚠️ Selskaper er None, returnerer tom liste")
+        return []
+    
     filtrerte = selskaper
     
-    if bedriftsnavn:
+    if bedriftsnavn and bedriftsnavn.strip():
         bedriftsnavn_lower = bedriftsnavn.lower()
         filtrerte = [s for s in filtrerte if s.get('navn', '').lower().find(bedriftsnavn_lower) != -1]
         print(f"🔍 Filtrert på bedriftsnavn '{bedriftsnavn}': {len(filtrerte)} bedrifter igjen")
     
-    if poststed:
+    if poststed and poststed.strip():
         poststed_lower = poststed.lower()
         filtrerte = [s for s in filtrerte if s.get('forretningsadresse', {}).get('poststed', '').lower().find(poststed_lower) != -1]
         print(f"🔍 Filtrert på poststed '{poststed}': {len(filtrerte)} bedrifter igjen")
     
-    if postnumre:
+    if postnumre and len(postnumre) > 0:
         print(f"🔍 Filtrerer på postnumre: {postnumre}")
         
         # Filtrer på postnumre
@@ -155,9 +165,9 @@ def filtrer_selskaper(selskaper, bedriftsnavn=None, poststed=None, postnumre=Non
         filtrerte = postnummer_filtrerte
         print(f"🔍 Filtrert på postnumre {postnumre}: {len(filtrerte)} bedrifter igjen")
     
-    if etablert_etter:
+    if etablert_etter and etablert_etter > 0:
         # Filtrer på etableringsår
-        filtrerte = [s for s in filtrerte if s.get('etableringsdatoEnhetsregisteret', '')[:4] >= str(etablert_etter)]
+        filtrerte = [s for s in filtrerte if s.get('etableringsdatoEnhetsregisteret', '') and s.get('etableringsdatoEnhetsregisteret', '')[:4] >= str(etablert_etter)]
         print(f"🔍 Filtrert på etablert etter {etablert_etter}: {len(filtrerte)} bedrifter igjen")
     
     if momsregistrert is not None:
