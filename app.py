@@ -45,131 +45,11 @@ def hente_selskaper_med_kriterier(bransjekode, min_ansatte, max_ansatte, bedrift
         'size': 1000
     }
     
-    # Hvis vi har postnumre men ingen NACE-kode, bruk en generell søk for alle bransjer
-    # Brønnøysundregisteret API krever minst én parameter, så vi bruker en som ikke begrenser bransjen
-    if postnumre and (not bransjekode or not bransjekode.strip()):
-        print("🔍 Ingen NACE-kode spesifisert, men postnumre gitt. Henter data fra alle bransjer.")
-        
-        # Bruk en generell parameter som ikke begrenser bransjen
-        # Vi kan bruke 'size' for å få maksimalt antall resultater per side
-        # Dette gir oss alle tilgjengelige selskaper uten å begrense på bransje
-        # Merk: Brønnøysundregisteret API krever minst én parameter, så vi bruker size=1000
-        params['size'] = 1000
-        
-        # Prøv å hente data uten begrensninger på bransje
-        # Hvis dette ikke fungerer, bruk fallback med vanlige NACE-koder
-        try:
-            # Hent data uten begrensninger på bransje
-            # Vi prøver først uten ekstra parametere, bare med size
-            response = requests.get(url, params=params, timeout=30)
-            if response.status_code == 200:
-                data = response.json()
-                if '_embedded' in data and 'enheter' in data['_embedded']:
-                    selskaper.extend(data['_embedded']['enheter'])
-                    print(f"✅ Fant {len(data['_embedded']['enheter'])} bedrifter i første batch")
-                    
-                    # Håndter paginering for å få alle resultater
-                    page = 0
-                    while 'next' in data.get('_links', {}):
-                        page += 1
-                        params['page'] = page
-                        
-                        print(f"📄 Henter side {page + 1}...")
-                        response = requests.get(url, params=params, timeout=30)
-                        
-                        if response.status_code == 200:
-                            data = response.json()
-                            if '_embedded' in data and 'enheter' in data['_embedded']:
-                                selskaper.extend(data['_embedded']['enheter'])
-                                print(f"✅ Fant {len(data['_embedded']['enheter'])} bedrifter på side {page + 1}")
-                            else:
-                                break
-                        else:
-                            print(f"❌ Feil på side {page + 1}: {response.status_code}")
-                            break
-                else:
-                    print(f"⚠️ Ingen '_embedded' eller 'enheter' i API response")
-            else:
-                print(f'❌ API feil: {response.status_code}')
-                
-        except Exception as e:
-            print(f'💥 Feil under henting av data: {str(e)}')
-            
-                    # Hvis den generelle søket feiler, prøv med en bredere tilnærming
-        print("🔄 Prøver bredere tilnærming for å få alle bedrifter...")
-        
-        # Bruk en parameter som gir oss alle selskaper
-        # Prøv med 'registrertIMvaregisteret' som kan gi oss alle MVA-registrerte selskaper
-        try:
-            temp_params = {'registrertIMvaregisteret': 'true', 'size': 1000}
-            response = requests.get(url, params=temp_params, timeout=30)
-            if response.status_code == 200:
-                data = response.json()
-                if '_embedded' in data and 'enheter' in data['_embedded']:
-                    selskaper.extend(data['_embedded']['enheter'])
-                    print(f"✅ Fant {len(data['_embedded']['enheter'])} bedrifter med MVA-registrering")
-                    
-                    # Håndter paginering for å få alle resultater
-                    page = 0
-                    while 'next' in data.get('_links', {}):
-                        page += 1
-                        temp_params['page'] = page
-                        
-                        print(f"📄 Henter side {page + 1}...")
-                        response = requests.get(url, params=temp_params, timeout=30)
-                        
-                        if response.status_code == 200:
-                            data = response.json()
-                            if '_embedded' in data and 'enheter' in data['_embedded']:
-                                selskaper.extend(data['_embedded']['enheter'])
-                                print(f"✅ Fant {len(data['_embedded']['enheter'])} bedrifter på side {page + 1}")
-                            else:
-                                break
-                        else:
-                            print(f"❌ Feil på side {page + 1}: {response.status_code}")
-                            break
-        except Exception as e2:
-            print(f"❌ Feil med MVA-parameter: {str(e2)}")
-            
-            # Hvis det også feiler, prøv med en annen generell tilnærming
-            print("🔄 Prøver siste fallback - hent data fra alle bransjer...")
-            
-            # Bruk en liste med mange vanlige bransjer for å få bred dekning
-            # Dette er ikke ideelt, men gir bedre dekning enn kun 9 bransjer
-            bred_bransje_liste = [
-                '70.220', '69.201', '62.010', '47.110', '56.100', '85.200', '86.100', '87.100', '88.100',
-                '41.100', '42.100', '43.100', '45.100', '46.100', '47.100', '49.100', '50.100', '51.100',
-                '52.100', '53.100', '55.100', '58.100', '59.100', '60.100', '61.100', '63.100', '64.100',
-                '65.100', '66.100', '68.100', '69.100', '70.100', '71.100', '72.100', '73.100', '74.100',
-                '75.100', '77.100', '78.100', '79.100', '80.100', '81.100', '82.100', '84.100', '85.100',
-                '86.100', '87.100', '88.100', '90.100', '91.100', '92.100', '93.100', '94.100', '95.100',
-                '96.100', '97.100', '98.100', '99.100'
-            ]
-            
-            for bransje in bred_bransje_liste:
-                try:
-                    temp_params = {'naeringskode': bransje, 'size': 1000}
-                    response = requests.get(url, params=temp_params, timeout=30)
-                    if response.status_code == 200:
-                        data = response.json()
-                        if '_embedded' in data and 'enheter' in data['_embedded']:
-                            selskaper.extend(data['_embedded']['enheter'])
-                            print(f"✅ Fant {len(data['_embedded']['enheter'])} bedrifter for bransje {bransje}")
-                except Exception as e3:
-                    print(f"❌ Feil for bransje {bransje}: {str(e3)}")
-                    continue
-        
-        print(f"🎯 Totalt antall bedrifter funnet fra alle bransjer: {len(selskaper)}")
-        
-        # Filtrer resultater basert på søkekriterier
-        if bedriftsnavn or poststed or postnumre or etablert_etter or momsregistrert is not None:
-            selskaper = filtrer_selskaper(selskaper, bedriftsnavn, poststed, postnumre, etablert_etter, momsregistrert)
-        
-        print(f"🎯 Totalt antall bedrifter funnet etter filtrering: {len(selskaper)}")
-        return selskaper
+        # Bygg API-parametere basert på brukerens søkekriterier
+    # Brønnøysundregisteret API krever minst én parameter, så vi legger til en generell hvis nødvendig
     
     # Legg til NACE-kode hvis spesifisert
-    elif bransjekode and bransjekode.strip():
+    if bransjekode and bransjekode.strip():
         params['naeringskode'] = bransjekode
     
     # Legg til antall ansatte hvis spesifisert
@@ -186,6 +66,11 @@ def hente_selskaper_med_kriterier(bransjekode, min_ansatte, max_ansatte, bedrift
     # Legg til registreringsdato hvis spesifisert
     if registreringsdato:
         params['fraRegistreringsdatoEnhetsregisteret'] = registreringsdato
+    
+    # Hvis ingen parametere er satt, legg til en generell parameter for å oppfylle API-kravet
+    if len(params) == 1:  # Kun 'size' er satt
+        print("🔍 Ingen søkeparametere spesifisert. Bruker generell parameter for å oppfylle API-krav.")
+        params['registrertIMvaregisteret'] = 'true'  # Alle MVA-registrerte selskaper
     
     print(f"🔍 Søker med parametere: {params}")
     
@@ -231,8 +116,7 @@ def hente_selskaper_med_kriterier(bransjekode, min_ansatte, max_ansatte, bedrift
     if bedriftsnavn or poststed or postnumre or etablert_etter or momsregistrert is not None:
         selskaper = filtrer_selskaper(selskaper, bedriftsnavn, poststed, postnumre, etablert_etter, momsregistrert)
     
-    print(f"🎯 Totalt antall bedrifter funnet etter filtrering: {len(selskaper)}")
-    return selskaper
+
 
 def filtrer_selskaper(selskaper, bedriftsnavn=None, poststed=None, postnumre=None, etablert_etter=None, momsregistrert=None):
     """Filtrerer selskaper basert på søkekriterier"""
