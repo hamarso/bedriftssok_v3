@@ -51,11 +51,13 @@ def hente_selskaper_med_kriterier(bransjekode, min_ansatte, max_ansatte, bedrift
         print("🔍 Ingen NACE-kode spesifisert, men postnumre gitt. Henter data fra alle bransjer.")
         
         # Bruk en generell parameter som ikke begrenser bransjen
-        # Vi kan bruke 'size' for å få maksimalt antall resultater
+        # Vi kan bruke 'registrertIMvaregisteret' for å få alle selskaper som er registrert i MVA-registeret
+        # Dette gir oss en stor del av alle aktive selskaper uten å begrense på bransje
+        params['registrertIMvaregisteret'] = 'true'
         params['size'] = 1000
         
         try:
-            # Hent data uten NACE-kode begrensning
+            # Hent data med generell parameter
             response = requests.get(url, params=params, timeout=30)
             if response.status_code == 200:
                 data = response.json()
