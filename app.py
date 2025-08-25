@@ -111,6 +111,12 @@ def hente_selskaper_med_kriterier(bransjekode, min_ansatte, bedriftsnavn=None, p
 
 def filtrer_selskaper(selskaper, bedriftsnavn=None, poststed=None, postnumre=None):
     """Filtrerer selskaper basert på navn, poststed og postnumre"""
+    print(f"🔍 Starter filtrering av {len(selskaper)} bedrifter")
+    print(f"🔍 Filtreringskriterier:")
+    print(f"   - Bedriftsnavn: {bedriftsnavn if bedriftsnavn else 'Ikke spesifisert'}")
+    print(f"   - Poststed: {poststed if poststed else 'Ikke spesifisert'}")
+    print(f"   - Postnumre: {postnumre if postnumre else 'Ikke spesifisert'}")
+    
     filtrerte = selskaper
     
     if bedriftsnavn:
@@ -145,12 +151,12 @@ def filtrer_selskaper(selskaper, bedriftsnavn=None, poststed=None, postnumre=Non
             # Sjekk om noen av postnumrene matcher
             matcher = False
             for postnummer in postnumre:
-                # Sjekk i adresse-tekst
-                if re.search(rf'\b{postnummer}\b', adresse_tekst):
+                # Sjekk i adresse-tekst (mer fleksibel matching)
+                if postnummer in adresse_tekst:
                     matcher = True
                     break
-                # Sjekk i postnummer-felt
-                if re.search(rf'\b{postnummer}\b', postnummer_felt):
+                # Sjekk i postnummer-felt (mer nøyaktig matching)
+                if postnummer in postnummer_felt:
                     matcher = True
                     break
             
@@ -159,7 +165,17 @@ def filtrer_selskaper(selskaper, bedriftsnavn=None, poststed=None, postnumre=Non
         
         filtrerte = postnummer_filtrerte
         print(f"🔍 Filtrert på postnumre {postnumre}: {len(filtrerte)} bedrifter igjen")
+        
+        # Log noen matchende bedrifter for debugging
+        if filtrerte:
+            print(f"🔍 Eksempler på matchende bedrifter:")
+            for i, selskap in enumerate(filtrerte[:2]):
+                adresse = selskap.get('forretningsadresse', {})
+                print(f"   {i+1}. {selskap.get('navn', 'N/A')}")
+                print(f"      Adresse: {adresse.get('adresse', 'N/A')}")
+                print(f"      Postnummer: {adresse.get('postnummer', 'N/A')}")
     
+    print(f"🔍 Filtrering ferdig: {len(filtrerte)} bedrifter igjen")
     return filtrerte
 
 @app.route('/')
@@ -172,28 +188,43 @@ def sok_selskaper():
     """API-endepunkt for å søke etter selskaper"""
     try:
         data = request.get_json()
-        bransjekode = data.get('bransjekode', '70.220')
-        min_ansatte = int(data.get('min_ansatte', 0))
+        bransjekode = data.get('bransjekode', '')
+        min_ansatte = int(data.get('min_ansatte', 0)) if data.get('min_ansatte') else 0
+        max_ansatte = int(data.get('max_ansatte', 0)) if data.get('max_ansatte') else 0
         bedriftsnavn = data.get('bedriftsnavn', '')
         poststed = data.get('poststed', '')
+        postnumre_string = data.get('postnumre', '')
         organisasjonsform = data.get('organisasjonsform', '')
         registreringsdato = data.get('registreringsdato', '')
-        postnumre_string = data.get('postnumre', '')
-        postnumre = parse_postnumre(postnumre_string)
-        page = int(data.get('page', 0))  # Legg til paginering
-        page_size = 100  # 100 resultater per side
-        export_all = data.get('export_all', False)  # Flag for å få alle resultater
+        etablert_etter = data.get('etablert_etter')
+        momsregistrert = data.get('momsregistrert')
+        page = int(data.get('page', 0))
+        page_size = 100
+        export_all = data.get('export_all', False)
+        
+        # Parse postnumre
+        postnumre = parse_postnumre(postnumre_string) if postnumre_string else None
         
         print(f"🚀 API søk mottatt:")
-        print(f"   - Bransjekode: {bransjekode}")
+        print(f"   - Bransjekode: '{bransjekode}' (tom hvis ikke spesifisert)")
         print(f"   - Min ansatte: {min_ansatte}")
-        print(f"   - Bedriftsnavn: {bedriftsnavn}")
-        print(f"   - Poststed: {poststed}")
-        print(f"   - Organisasjonsform: {organisasjonsform}")
-        print(f"   - Registreringsdato: {registreringsdato}")
+        print(f"   - Max ansatte: {max_ansatte}")
+        print(f"   - Bedriftsnavn: '{bedriftsnavn}'")
+        print(f"   - Poststed: '{poststed}'")
         print(f"   - Postnumre: {postnumre}")
+        print(f"   - Organisasjonsform: '{organisasjonsform}'")
+        print(f"   - Registreringsdato: '{registreringsdato}'")
+        print(f"   - Etablert etter: {etablert_etter}")
+        print(f"   - Momsregistrert: {momsregistrert}")
         print(f"   - Side: {page}")
         print(f"   - Export all: {export_all}")
+        
+        # Sjekk om bransjekode er påkrevd
+        if not bransjekode or bransjekode.strip() == '':
+            return jsonify({
+                'success': False,
+                'error': 'NACE-kode (bransje) er påkrevd for søk'
+            }), 400
         
         selskaper = hente_selskaper_med_kriterier(
             bransjekode, 
@@ -202,7 +233,7 @@ def sok_selskaper():
             poststed if poststed else None,
             organisasjonsform if organisasjonsform else None,
             registreringsdato if registreringsdato else None,
-            postnumre if postnumre else None
+            postnumre
         )
         
         print(f"📊 Rå data mottatt: {len(selskaper)} bedrifter")
